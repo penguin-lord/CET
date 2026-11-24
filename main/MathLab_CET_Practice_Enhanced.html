@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="MathLab CET Practice: offline-friendly randomized mathematics drills for college entrance test preparation.">
+<title>MathLab | CET Practice</title>
+<style>
+:root{--bg:#f4f6fb;--ink:#172033;--muted:#667085;--line:#e5e9f2;--p:#5146e5;--good:#15803d;--bad:#dc2626;--amber:#92400e}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,Arial,sans-serif}header{background:linear-gradient(120deg,#25215f,#5146e5);color:#fff;padding:24px 16px}header h1{margin:0;font-size:clamp(25px,5vw,32px)}.wrap{max-width:1100px;margin:auto;padding:0 16px}main{padding:22px 0}.grid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 5px 18px #1c24500a}h2{font-size:18px;margin:0 0 12px}.controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:5px}select{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;background:#fff;font:inherit;color:var(--ink)}button{border:0;border-radius:10px;padding:11px 15px;background:var(--p);color:#fff;font:inherit;font-weight:700;cursor:pointer}button.secondary{background:#eef0ff;color:#3730a3}button.outline{background:#fff;color:#3730a3;border:1px solid #c7c5ff}button:disabled{opacity:.5;cursor:not-allowed}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.small{font-size:12px;color:var(--muted)}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.stat{background:#f8f9ff;border-radius:10px;padding:11px}.stat strong{display:block;font-size:22px}.stat span{font-size:12px;color:var(--muted)}.progress,.bar{height:8px;background:#eceef5;border-radius:20px;overflow:hidden}.progress{margin-top:12px}.progress i,.bar i{display:block;height:100%;background:var(--p);width:0}.qhead{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.pill{display:inline-block;background:#eef0ff;color:#3730a3;border-radius:30px;padding:5px 9px;font-size:12px;font-weight:700;margin:2px}.timer{font-weight:800}.prompt{font-size:21px;font-weight:700;margin:18px 0 12px}.visual{text-align:center;margin:8px 0 14px;overflow:hidden}.visual svg{max-width:100%;height:auto}.options{display:grid;grid-template-columns:1fr 1fr;gap:10px}.option{background:#fff;color:var(--ink);border:1px solid var(--line);text-align:left;min-height:48px}.option.correct{background:#ecfdf3;border-color:var(--good);color:#166534}.option.wrong{background:#fef2f2;border-color:var(--bad);color:#991b1b}.feedback{display:none;margin-top:14px;padding:12px;border-radius:10px}.feedback.show{display:block}.good{background:#ecfdf3;color:#166534}.bad{background:#fef2f2;color:#991b1b}.focus{margin:12px 0}.focus-title{display:flex;justify-content:space-between;gap:10px;font-size:13px;margin-bottom:4px}.history{max-height:300px;overflow:auto}.history-item{padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}.history-item:last-child{border:0}footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}.topic-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:6px}.topic-check{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-size:13px;color:var(--ink);margin:0}.topic-check input{accent-color:var(--p);width:16px;height:16px}.solution{display:none;margin-top:14px;padding:14px;border:1px solid #d9d5ff;background:#fafaff;border-radius:12px}.solution.show{display:block}.solution h3{margin:0 0 10px;font-size:16px}.solution-step{padding:10px 0;border-top:1px solid #e8e6ff}.solution-step b{display:block;margin-bottom:4px;color:#3730a3}.solution-final{padding:10px;background:#eef0ff;border-radius:8px;font-weight:800;margin-top:8px}.notice{padding:10px;background:#fffbeb;border:1px solid #fde68a;border-radius:9px;color:var(--amber);font-size:12px;margin-top:12px}details{border:1px solid var(--line);border-radius:12px;padding:12px;margin:12px 0;background:#fff}summary{font-weight:700;cursor:pointer;color:#3730a3}.formula-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.formula-grid div{background:#f8f9ff;border-radius:9px;padding:10px;font-size:13px}.formula-grid b{display:block;margin-bottom:4px}.tag{font-size:11px;color:var(--muted)}.hidden{display:none!important}
+.answer-entry{display:flex;gap:9px;align-items:stretch;margin-top:12px;flex-wrap:wrap}
+.answer-entry input{flex:1;min-width:150px;padding:13px;border:1px solid var(--line);border-radius:10px;font:inherit;font-size:18px;color:var(--ink)}
+.answer-entry button{min-width:110px}
+.keypad{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.keypad button{padding:8px 12px;background:#eef0ff;color:#3730a3;border:1px solid #d9d7ff}
+.entry-label{font-size:12px;color:var(--muted);margin-top:10px}
+body.exam-active .exam-hide{display:none!important}
+body.exam-active .formula-bank{display:none!important}
+.problem-tag{display:inline-block;background:#fff7ed;color:#9a3412;border-radius:20px;padding:3px 8px;font-size:11px;font-weight:700;margin-bottom:5px}
+@media(max-width:740px){.topic-checks{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.controls{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}.options{grid-template-columns:1fr}.prompt{font-size:18px}.formula-grid{grid-template-columns:1fr}}
+@media(max-width:390px){.controls{grid-template-columns:1fr}.wrap{padding:0 12px}.card{padding:14px}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><h1>MathLab | CET Practice</h1><div>Randomized math drills for accuracy, speed, and exam readiness.</div></div></header>
+<main class="wrap">
+<div class="grid">
+<section class="card">
+<h2>Practice setup</h2>
+<div class="controls">
+<div><label for="mode">SESSION MODE</label><select id="mode"><option value="practice">Practice — unlimited</option><option value="exam">Exam simulation</option></select></div>
+<div><label for="count">EXAM LENGTH</label><select id="count"><option value="25">25</option><option value="50" selected>50</option><option value="75">75</option><option value="100">100</option></select></div>
+<div><label for="topic">TOPIC</label><div id="topicChecks" class="topic-checks" aria-label="Choose one or more exam topics"><label class="topic-check"><input type="checkbox" id="topicAll" checked> All topics</label><label class="topic-check"><input type="checkbox" name="topic" value="arithmetic" checked> Arithmetic & number sense</label><label class="topic-check"><input type="checkbox" name="topic" value="fractions" checked> Fractions</label><label class="topic-check"><input type="checkbox" name="topic" value="percent" checked> Percentages</label><label class="topic-check"><input type="checkbox" name="topic" value="ratio" checked> Ratio & proportion</label><label class="topic-check"><input type="checkbox" name="topic" value="algebra" checked> Algebra</label><label class="topic-check"><input type="checkbox" name="topic" value="exponents" checked> Exponents</label><label class="topic-check"><input type="checkbox" name="topic" value="geometry" checked> Geometry & angles</label><label class="topic-check"><input type="checkbox" name="topic" value="trig" checked> Trigonometry</label><label class="topic-check"><input type="checkbox" name="topic" value="roots" checked> Squares & roots</label><label class="topic-check"><input type="checkbox" name="topic" value="logs" checked> Logarithms</label><label class="topic-check"><input type="checkbox" name="topic" value="sequence" checked> Sequences</label><label class="topic-check"><input type="checkbox" name="topic" value="statistics" checked> Statistics</label><label class="topic-check"><input type="checkbox" name="topic" value="probability" checked> Probability</label><label class="topic-check"><input type="checkbox" name="topic" value="coordinate" checked> Coordinate geometry</label></div></div>
+<div><label for="difficulty">DIFFICULTY</label><select id="difficulty"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select></div>
+<div><label for="duration">TIME PER QUESTION</label><select id="duration"><option value="30">30 seconds</option><option value="45" selected>45 seconds</option><option value="60">60 seconds</option><option value="90">90 seconds</option><option value="0">No timer</option></select></div>
+<div><label for="transition">AFTER ANSWERING</label><select id="transition"><option value="manual">Wait for Next Question</option><option value="auto">Auto-next after 2 seconds (exam)</option></select></div>
+</div>
+<div class="actions"><button id="start">Start session</button><button class="secondary" id="reset">Reset</button><button class="outline" id="weakPractice" type="button">Practice weakest topic</button></div>
+<p class="small exam-hide" id="setupNote">Questions are generated in your browser. No account or API key is required.</p>
+<div class="notice exam-hide" id="setupNotice">Diagrams are drawn from the same measurements used by the question. Circle-area questions use π = 3.14. Decimal answers state their required rounding.</div>
+</section>
+<section class="card"><h2>Session overview</h2><div class="stats"><div class="stat"><strong id="score">0</strong><span>Correct</span></div><div class="stat"><strong id="attempts">0</strong><span>Attempted</span></div><div class="stat"><strong id="accuracy">0%</strong><span>Accuracy</span></div><div class="stat"><strong id="streak">0</strong><span>Best streak</span></div></div><div class="progress"><i id="progress"></i></div><p class="small" id="progressText">Start a session to track your progress.</p></section>
+</div>
+<section class="card">
+<div class="qhead"><div><span class="pill" id="topicPill">READY</span><span class="pill" id="diffPill">MEDIUM</span><span class="pill" id="numberPill">QUESTION —</span></div><div class="timer" id="timer">⏱ --</div></div>
+<div class="prompt" id="question">Choose your settings, then start a session.</div><div class="visual" id="visual"></div><div class="options" id="options"></div><div class="feedback" id="feedback" role="status" aria-live="polite"></div><section class="solution" id="solution" aria-live="polite"><h3>Step-by-step solution</h3><div id="solutionSteps"></div><div class="solution-final" id="solutionFinal"></div></section>
+<div class="actions"><button id="next" disabled>Next question →</button><button class="secondary" id="hint" disabled>Show a hint</button><button class="secondary" id="pdf" disabled>Generate study report</button></div>
+</section>
+<div class="grid"><section class="card"><h2>Areas to focus on</h2><p class="small">Ranked by the percentage of missed questions. Small sample sizes can be misleading.</p><div id="focus"><p class="small">Your focus report appears after you answer.</p></div></section><section class="card"><h2>Recent answers</h2><div id="history" class="history"><p class="small">No answers yet.</p></div></section></div>
+<section class="card formula-bank"><h2>CET quick formula bank</h2><p class="small">A compact refresher for common mathematics entrance-test topics.</p><details><summary>Open formulas and reminders</summary><div class="formula-grid">
+<div><b>Percent</b>Part = rate × whole<br>Percent change = (change ÷ original) × 100%</div>
+<div><b>Ratio & proportion</b>a:b = a/b<br>If a/b = c/d, then ad = bc</div>
+<div><b>Algebra</b>a(b + c) = ab + ac<br>(a + b)² = a² + 2ab + b²</div>
+<div><b>Geometry</b>Triangle area = ½bh<br>Rectangle area = lw<br>Circle area = πr²; circumference = 2πr</div>
+<div><b>Right triangles</b>a² + b² = c²<br>sin θ = opposite/hypotenuse<br>cos θ = adjacent/hypotenuse<br>tan θ = opposite/adjacent</div>
+<div><b>Exponents & roots</b>aᵐ × aⁿ = aᵐ⁺ⁿ<br>(aᵐ)ⁿ = aᵐⁿ; a⁻ⁿ = 1/aⁿ<br>√(ab) = √a × √b (for a,b ≥ 0)</div>
+<div><b>Logarithms</b>log_b(x) = y ⇔ bʸ = x<br>log_b(b) = 1; log_b(1) = 0</div>
+<div><b>Statistics</b>Mean = sum ÷ count<br>Median = middle after sorting<br>Range = maximum − minimum</div>
+<div><b>Probability</b>P(event) = favorable outcomes ÷ total equally likely outcomes</div>
+<div><b>Coordinate geometry</b>Slope = (y₂ − y₁)/(x₂ − x₁)<br>Distance = √[(x₂−x₁)² + (y₂−y₁)²]</div>
+</div></details></section>
+</main><footer>Designed and Developed by: <b>JOHN DANIEL ANGELES</b></footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const randInt = (min,max) => Math.floor(Math.random()*(max-min+1))+min;
+const pick = arr => arr[randInt(0,arr.length-1)];
+const round = (n,d=2) => Number(Number(n).toFixed(d));
+const gcd = (a,b) => { a=Math.abs(a); b=Math.abs(b); while(b){const t=b;b=a%b;a=t;} return a||1; };
+const fraction = (n,d) => { if(d===0) throw new Error('A fraction cannot have a zero denominator.'); if(d<0){n=-n;d=-d;} const g=gcd(n,d); return `${n/g}/${d/g}`; };
+const names = {arithmetic:'Arithmetic & number sense',fractions:'Fractions',percent:'Percentages',ratio:'Ratio & proportion',algebra:'Algebra',exponents:'Exponents',geometry:'Geometry & angles',trig:'Trigonometry',roots:'Squares & roots',logs:'Logarithms',sequence:'Sequences',statistics:'Statistics',probability:'Probability',coordinate:'Coordinate geometry'};
+const tips = {
+arithmetic:'Review order of operations (PEMDAS), integers, factors, multiples, divisibility, and estimation. Write each step to avoid sign errors.',
+fractions:'Find a common denominator before adding or subtracting. Multiply across; divide by multiplying by the reciprocal. Reduce answers to simplest form.',
+percent:'Convert percentages to decimals by dividing by 100. Identify the original whole before solving percent increase, decrease, discount, or tax questions.',
+ratio:'Keep units consistent. Simplify ratios by dividing by the GCF. For proportions, cross-multiply and solve.',
+exponents:'Use the exponent laws: multiply same bases by adding exponents, divide by subtracting exponents, and raise a power to a power by multiplying exponents. Rewrite negative exponents as reciprocals.',
+algebra:'Keep equations balanced. Undo addition/subtraction before multiplication/division. Expand brackets carefully and combine like terms.',
+geometry:'Write the correct formula first. Distinguish area from perimeter and use square units for area. Review triangle, rectangle, circle, and Pythagorean formulas.',
+trig:'Memorize special-angle values and SOH-CAH-TOA. Identify opposite, adjacent, and hypotenuse relative to the marked angle.',
+roots:'Memorize common perfect squares. For radical simplification, factor out the largest perfect-square factor.',
+logs:'Use log base b of N = x ⇔ b to the power x = N. Check that the base is positive and not equal to 1.',
+sequence:'Find the pattern between consecutive terms. Arithmetic sequences add a common difference; geometric sequences multiply by a common ratio.',
+statistics:'Sort data before finding the median. Mean is sum divided by count; mode is most frequent; range is maximum minus minimum.',
+probability:'Count favorable outcomes and total equally likely outcomes. Probability is between 0 and 1.',
+coordinate:'Use the slope and distance formulas carefully. Keep x-coordinates together and y-coordinates together.'
+};
+let question=null,locked=true,timerId=null,autoId=null,secondsLeft=0,score=0,attempts=0,streak=0,bestStreak=0,questionNo=0,sessionMode='practice',examLimit=50,finished=false;
+let misses={},totals={},answerHistory=[];
+function clearStats(){ misses=Object.fromEntries(Object.keys(names).map(k=>[k,0])); totals={...misses}; answerHistory=[]; }
+clearStats();
+function makeQ(topic,prompt,answer,explanation,hint,wrong,visual='',steps=[]){return {topic,prompt,answer:String(answer),explanation,hint,wrong:wrong.map(String),visual,steps};}
+function rightTriangle(base,vertical,hypotenuse,baseLabel,verticalLabel,hypLabel){
+ const maxW=270,maxH=155,scale=Math.min(maxW/base,maxH/vertical),w=base*scale,h=vertical*scale;
+ const x1=28,y1=184,x2=x1+w,y2=y1-h,rx=x2-19,ry=y1-19;
+ const hypX=(x1+x2)/2+5,hypY=(y1+y2)/2-8;
+ return `<svg viewBox="0 0 340 205" width="340" role="img" aria-label="Right triangle: base ${baseLabel}, vertical leg ${verticalLabel}, hypotenuse ${hypLabel}"><path d="M${x1} ${y1} L${x2} ${y1} L${x2} ${y2} Z" fill="#eef0ff" stroke="#5146e5" stroke-width="3"/><path d="M${x2-18} ${y1} v-18 h18" fill="none" stroke="#5146e5" stroke-width="2"/><text x="${x1+w/2}" y="${y1+17}" text-anchor="middle" font-size="13">${baseLabel}</text><text x="${x2+7}" y="${y1-h/2}" font-size="13">${verticalLabel}</text><text x="${hypX}" y="${hypY}" font-size="13">${hypLabel}</text><text x="${x1+15}" y="${y1-5}" font-size="13" fill="#b45309">θ</text></svg>`;
+}
+function circleDiagram(r){return `<svg viewBox="0 0 300 155" width="300" role="img" aria-label="Circle with radius ${r}"><circle cx="145" cy="76" r="55" fill="#eef0ff" stroke="#5146e5" stroke-width="3"/><path d="M145 76H200" stroke="#f59e0b" stroke-width="3"/><circle cx="145" cy="76" r="3" fill="#172033"/><text x="165" y="66" font-size="13">r = ${r}</text></svg>`;}
+const triples=[[3,4,5],[5,12,13],[8,15,17]];
+function generate(topic,difficulty){
+ const level={easy:1,medium:2,hard:3}[difficulty]||2;
+ const generators={
+ arithmetic(){
+  const a=randInt(2,level===1?12:30),b=randInt(2,level===1?12:20),c=randInt(2,9),kind=randInt(1,3);
+  if(kind===1){const ans=a+b*c;return makeQ('arithmetic',`Evaluate ${a} + ${b} × ${c}.`,ans,`Multiply first: ${b} × ${c} = ${b*c}. Then add ${a}: ${ans}.`,'Apply order of operations: multiplication before addition.',[a*b+c,a+b+c,(a+b)*c]);}
+  if(kind===2){const ans=a*b-c;return makeQ('arithmetic',`Evaluate ${a} × ${b} − ${c}.`,ans,`${a} × ${b} = ${a*b}; ${a*b} − ${c} = ${ans}.`,'Multiply before subtracting.',[a*(b-c),a*b+c,a+b-c]);}
+  const n=a*b;return makeQ('arithmetic',`What is the greatest common factor (GCF) of ${n} and ${a*c}?`,a*gcd(b,c),`The GCF of ${a*b} and ${a*c} is ${a} × GCF(${b}, ${c}) = ${a*gcd(b,c)}.`,'Factor out the common factor shared by both numbers.',[a,a*b,a*c,gcd(n,a*c)]);
+ },
+ fractions(){
+  let a=randInt(1,9),b=randInt(2,10),c=randInt(1,9),d=randInt(2,10),kind=randInt(1,4);
+  if(kind===1||kind===3){const n=kind===1?a*d+c*b:a*d-c*b,den=b*d,ans=fraction(n,den),op=kind===1?'+':'−';return makeQ('fractions',`Add and simplify: ${a}/${b} ${op} ${c}/${d}.`,ans,`Use denominator ${den}: (${a}×${d} ${op} ${c}×${b})/${den} = ${n}/${den} = ${ans}.`,'Find a common denominator, combine numerators, then reduce.',[fraction(a+c,b+d),fraction(a*c,b*d),fraction(n+1,den),fraction(n-1,den)]);}
+  if(kind===2){const ans=fraction(a*c,b*d);return makeQ('fractions',`Multiply and simplify: ${a}/${b} × ${c}/${d}.`,ans,`Multiply numerators and denominators: (${a}×${c})/(${b}×${d}) = ${ans}.`,'Multiply across, then divide numerator and denominator by their GCF.',[fraction(a+c,b+d),fraction(a*d,b*c),fraction(a*c+1,b*d),fraction(a*c,b*d+1)]);}
+  const ans=fraction(a*d,b*c);return makeQ('fractions',`Divide and simplify: ${a}/${b} ÷ ${c}/${d}.`,ans,`Keep, change, flip: ${a}/${b} × ${d}/${c} = ${ans}.`,'Keep the first fraction, change division to multiplication, and flip the second fraction.',[fraction(a*c,b*d),fraction(a*d,b*d),fraction(a+c,b+c),fraction(a*d+1,b*c)]);
+ },
+ percent(){
+  const base=pick(level===1?[50,80,100,120,200]:[60,80,120,150,180,240,320]),rate=pick([5,10,12,15,20,25,30,40,50]);
+  if(level===3&&randInt(0,1)){const old=base,newv=old*(1+rate/100);return makeQ('percent',`A price increases from ₱${old} to ₱${newv}. What is the percentage increase?`,`${rate}%`, `Increase = ${newv-old}. Percentage increase = (${newv-old} ÷ ${old}) × 100% = ${rate}%.`,'Divide the increase by the original price, not the new price.',[`${rate+5}%`,`${rate-5}%`,`${rate*2}%`]);}
+  const ans=base*rate/100;return makeQ('percent',`Find ${rate}% of ${base}.`,ans,`${rate}% = ${rate/100}; ${rate/100} × ${base} = ${ans}.`,'Convert the percentage to a decimal, then multiply.',[base/rate,base-ans,ans+rate,ans-rate]);
+ },
+ ratio(){
+  const k=randInt(2,level===1?6:12),a=randInt(2,8),b=randInt(2,8),total=(a+b)*k;
+  if(randInt(0,1)===0){return makeQ('ratio',`The ratio of boys to girls is ${a}:${b}. If there are ${total} students, how many are boys?`,a*k,`Total parts = ${a}+${b} = ${a+b}. One part = ${total}/${a+b} = ${k}. Boys = ${a}×${k} = ${a*k}.`,'Add the ratio parts first, then divide the total by that sum.',[b*k,total/(a+b),a*total,total-b*k]);}
+  const x=randInt(2,12),y=randInt(2,12),factor=randInt(2,6);return makeQ('ratio',`If ${x}/${y} = n/${y*factor}, find n.`,x*factor,`Cross-multiply: ${x}×${y*factor} = ${y}×n, so n = ${x*factor}.`,'Use equivalent fractions or cross multiplication.',[x+y,x*factor+y,x*factor-factor,x*factor+factor]);
+ },
+ algebra(){
+  const a=randInt(2,level===1?5:10),x=randInt(2,12),b=randInt(1,15);
+  if(randInt(0,1)===0){const rhs=a*x+b;return makeQ('algebra',`Solve for x: ${a}x + ${b} = ${rhs}.`,x,`Subtract ${b}: ${a}x = ${rhs-b}. Divide by ${a}: x = ${x}.`,'Undo addition first, then divide by the coefficient.',[x+1,x-1,x+2,x+3]);}
+  const ans=`x² + ${a+b}x + ${a*b}`;return makeQ('algebra',`Expand: (x + ${a})(x + ${b}).`,ans,`FOIL: x² + ${b}x + ${a}x + ${a*b} = ${ans}.`,'Multiply every term in the first bracket by every term in the second.',[`x² + ${a*b}x + ${a+b}`,`x² + ${a+b}`,`x² + ${a+b+1}x + ${a*b}`,`x² + ${a*b}x + ${a+b+1}`]);
+ },
+ exponents(){
+  const kind=randInt(1,3),a=randInt(2,5),m=randInt(2,5),n=randInt(1,4),b=randInt(2,4);
+  if(kind===1){const ans=`${a}^${m+n}`;return makeQ('exponents',`Simplify using positive exponents: ${a}^${m} × ${a}^${n}.`,ans,`When multiplying powers with the same base, add the exponents: ${m} + ${n} = ${m+n}.`,'Same base multiplied? Add the exponents.',[`${a}^${m*n}`,`${a}^${m-n}`,`${a}^${m+n+1}`],'',[
+   {title:'Identify the rule',body:'For the same base, aᵐ × aⁿ = aᵐ⁺ⁿ.'},
+   {title:'Add the exponents',body:`${m} + ${n} = ${m+n}. Keep the base ${a}.`}
+  ]);}
+  if(kind===2){const ans=`${a}^${m*n}`;return makeQ('exponents',`Simplify: (${a}^${m})^${n}.`,ans,`Power of a power: multiply exponents, ${m} × ${n} = ${m*n}.`,'A power raised to another power? Multiply the exponents.',[`${a}^${m+n}`,`${a}^${m-n}`,`${a}^${m*n+1}`],'',[
+   {title:'Apply the power-of-a-power rule',body:'(aᵐ)ⁿ = aᵐˣⁿ.'},
+   {title:'Multiply the exponents',body:`${m} × ${n} = ${m*n}. Keep the base ${a}.`}
+  ]);}
+  const ans=`1/${a**n}`;return makeQ('exponents',`Rewrite ${a}^-${n} using positive exponents.`,ans,`A negative exponent means reciprocal: ${a}^-${n} = 1/${a}^${n} = 1/${a**n}.`,'Move the base to the denominator and make the exponent positive.',[`-${a**n}`,`${a**n}`,`1/${a*n}`],'',[
+   {title:'Use the negative-exponent rule',body:'a⁻ⁿ = 1/aⁿ, for a ≠ 0.'},
+   {title:'Rewrite with a positive exponent',body:`${a}^-${n} = 1/${a}^${n} = 1/${a**n}.`}
+  ]);
+ },
+ geometry(){
+  const kind=randInt(1,7),a=randInt(3,level===1?10:18),b=randInt(3,level===1?10:18);
+  if(kind===1){const ans=a*b/2;return makeQ('geometry',`Find the area of a triangle with base ${a} cm and height ${b} cm.`,ans,`A = ½ × base × height = ½ × ${a} × ${b} = ${ans} cm².`,'Use A = ½bh.',[a*b,a+b,a*b/2+a,a*b/2-b]);}
+  if(kind===2){const ans=round(3.14*a*a,2);return makeQ('geometry',`Find the area of a circle with radius ${a} cm. Use π = 3.14.`,ans,`A = πr² = 3.14 × ${a}² = ${ans} cm².`,'Square the radius before multiplying by 3.14.',[round(3.14*a),round(6.28*a),round(ans*2),round(ans-3.14)],circleDiagram(a));}
+  if(kind===3){const ans=2*(a+b);return makeQ('geometry',`A rectangle is ${a} cm long and ${b} cm wide. Find its perimeter.`,ans,`P = 2(l+w) = 2(${a}+${b}) = ${ans} cm.`,'Add length and width, then multiply by 2.',[a+b,a*b,2*a+b,2*b+a]);}
+  if(kind===4){const [x,y,c]=pick(triples);return makeQ('geometry',`A right triangle has legs ${x} cm and ${y} cm. Find its hypotenuse.`,c,`c = √(${x}² + ${y}²) = √${x*x+y*y} = ${c} cm.`,'Use the Pythagorean theorem: a² + b² = c².',[x+y,x*y,c+1,c-1],rightTriangle(x,y,c,x,y,c));}
+  if(kind===5)return makeQ('geometry',`A square has a side length of ${a} cm. Find its area.`,a*a,`Area = side² = ${a}² = ${a*a} cm².`,'Square the side length.',[a*4,a*2,a*a*2,a*a-1]);
+  // Triangle angle puzzle: a right angle is 3x, the top exterior angle is 4x,
+  // and the bottom-right exterior angle is 3y.
+  const x=30,topExterior=4*x,topInterior=180-topExterior,bottomInterior=180-90-topInterior,bottomExterior=180-bottomInterior,y=bottomExterior/3;
+  const diagram=`<svg viewBox="0 0 340 210" width="340" role="img" aria-label="Right triangle with a right angle at bottom left labeled 3x, top exterior angle 4x, and bottom right exterior angle 3y"><path d="M45 180 L45 35 L285 180 Z" fill="#eef0ff" stroke="#5146e5" stroke-width="3"/><path d="M45 180v-17h17" fill="none" stroke="#5146e5" stroke-width="2"/><path d="M45 35 L45 8" stroke="#5146e5" stroke-width="2"/><path d="M285 180 L330 180" stroke="#5146e5" stroke-width="2"/><text x="65" y="165" font-size="13">3x</text><text x="55" y="28" font-size="13">4x</text><text x="292" y="165" font-size="13">3y</text></svg>`;
+  return makeQ('geometry',`In the diagram, the bottom-left angle is 3x and is a right angle. The top exterior angle is 4x, and the bottom-right exterior angle is 3y. Find y.`,y,`Since 3x = 90°, x = 30°. The top exterior angle is 4x = 120°, so the top interior angle is 180° − 120° = 60°. The triangle's bottom-right interior angle is 180° − 90° − 60° = 30°. Its exterior angle is 180° − 30° = 150°. Thus 3y = 150°, so y = 50°.`, 'Use a right angle first, then linear pairs (sum 180°) and the triangle angle sum (180°).', [30,40,45,60,90],diagram,[
+   {title:'Step 1 — Find x',body:'The bottom-left angle is a right angle: 3x = 90°. Divide both sides by 3: x = 30°.'},
+   {title:'Step 2 — Find the top interior angle',body:`Top exterior angle = 4x = 4(30°) = 120°. A linear pair sums to 180°, so top interior angle = 180° − 120° = 60°.`},
+   {title:'Step 3 — Find the bottom-right interior angle',body:'Triangle angle sum = 180°. Bottom-right interior angle = 180° − 90° − 60° = 30°.'},
+   {title:'Step 4 — Find y',body:'Bottom exterior angle = 180° − 30° = 150°. Thus 3y = 150°, and y = 50°.'}
+  ]);
+ },
+ trig(){
+  const angles=[{a:30,s:'1/2',c:'√3/2',t:'√3/3'},{a:45,s:'√2/2',c:'√2/2',t:'1'},{a:60,s:'√3/2',c:'1/2',t:'√3'}];
+  if(randInt(0,1)===0){const v=pick(angles),fn=pick(['sin','cos','tan']),ans=v[fn==='sin'?'s':fn==='cos'?'c':'t'];return makeQ('trig',`Evaluate ${fn}(${v.a}°).`,ans,`${fn}(${v.a}°) = ${ans}. This is a special-angle exact value.`,'Recall the 30°–45°–60° special-angle table.',['0','1','1/2','√2/2','√3/2','√3','√3/3'].filter(x=>x!==ans));}
+  const [o,adj,h]=pick(triples),fn=pick(['sin','cos','tan']);let ans=fn==='sin'?fraction(o,h):fn==='cos'?fraction(adj,h):fraction(o,adj);const n=fn==='sin'?'opposite / hypotenuse':fn==='cos'?'adjacent / hypotenuse':'opposite / adjacent';return makeQ('trig',`In the right triangle shown, find ${fn}(θ). Opposite = ${o}, adjacent = ${adj}, hypotenuse = ${h}.`,ans,`${fn}(θ) = ${n} = ${fn==='sin'?o+'/'+h:fn==='cos'?adj+'/'+h:o+'/'+adj} = ${ans}.`,'Use SOH-CAH-TOA and identify the correct sides relative to θ.',[fraction(adj,o),fraction(h,o),fraction(h,adj),fraction(o+1,adj)],rightTriangle(adj,o,h,adj,o,h));
+ },
+ roots(){
+  const n=randInt(2,level===1?10:20),kind=randInt(1,4);
+  if(kind===1)return makeQ('roots',`Evaluate ${n}².`,n*n,`${n}² = ${n} × ${n} = ${n*n}.`,'A square means multiply the number by itself.',[n*2,n*3,n*n+n,n*n-1]);
+  if(kind===2)return makeQ('roots',`Evaluate √${n*n}.`,n,`The principal square root of ${n*n} is ${n}, because ${n}² = ${n*n}.`,'Find the nonnegative number whose square is the radicand.',[n-1,n+1,n*2,n*n]);
+  if(kind===3){const r=pick([2,3,5,6,7,10,11,13]),k=randInt(2,level===1?5:9),ans=`${k}√${r}`;return makeQ('roots',`Simplify √${k*k*r}.`,ans,`√(${k}² × ${r}) = ${k}√${r} = ${ans}.`,'Take the largest perfect-square factor outside the radical.',[`√${k*k*r}`,`${k}√${r*2}`,`${k+1}√${r}`,`${r}√${k}`]);}
+  const x=pick([2,3,5,6,7,8,10,11,12,13,15,17,18,19,20]),ans=round(Math.sqrt(x),2);return makeQ('roots',`Estimate √${x} to 2 decimal places.`,ans,`√${x} ≈ ${ans} when rounded to 2 decimal places.`,'Locate the number between two consecutive perfect squares, then estimate.',[round(ans+.1),round(ans-.1),round(ans+.2),round(ans-.2)]);
+ },
+ logs(){const base=pick([2,3,5,10]),power=randInt(1,level===1?3:level===2?4:6),n=base**power;return makeQ('logs',`Evaluate log base ${base} of ${n}.`,power,`Since ${base}^${power} = ${n}, log base ${base} of ${n} = ${power}.`,'Ask: what exponent on the base produces the given number?',[power-1,power+1,base,n]);},
+ sequence(){
+  if(randInt(0,1)===0){const first=randInt(1,15),d=randInt(2,level===1?5:10),terms=[first,first+d,first+2*d,first+3*d],ans=first+4*d;return makeQ('sequence',`Find the next term: ${terms.join(', ')}, __.`,ans,`The common difference is ${d}. Add ${d} to ${terms[3]} to get ${ans}.`,'Subtract consecutive terms to find the common difference.',[ans+d,ans-d,terms[3]*2,first+5*d]);}
+  const first=pick([1,2,3]),ratio=randInt(2,level===1?3:4),terms=[first,first*ratio,first*ratio**2,first*ratio**3],ans=first*ratio**4;return makeQ('sequence',`Find the next term: ${terms.join(', ')}, __.`,ans,`Each term is multiplied by ${ratio}. ${terms[3]} × ${ratio} = ${ans}.`,'Divide a term by the previous term to identify the common ratio.',[ans+ratio,ans-ratio,terms[3]+ratio,ans*ratio]);
+ },
+ statistics(){const count=5,arr=Array.from({length:count},()=>randInt(2,20)).sort((a,b)=>a-b),kind=pick(['mean','median','range']);let ans,ex;if(kind==='mean'){ans=round(arr.reduce((s,v)=>s+v,0)/count,2);ex=`Mean = (${arr.join(' + ')}) ÷ ${count} = ${ans}.`;}else if(kind==='median'){ans=arr[2];ex=`The sorted values are ${arr.join(', ')}. The middle value is ${ans}.`;}else{ans=arr[4]-arr[0];ex=`Range = maximum − minimum = ${arr[4]} − ${arr[0]} = ${ans}.`;}return makeQ('statistics',`Find the ${kind} of: ${arr.join(', ')}.`,ans,ex,kind==='mean'?'Add all values and divide by the number of values.':kind==='median'?'Sort the data and select the middle value.':'Subtract the smallest value from the largest value.',[ans+1,ans-1,ans+2,ans+3]);},
+ probability(){const red=randInt(2,8),blue=randInt(2,8),green=randInt(2,8),total=red+blue+green;return makeQ('probability',`A bag contains ${red} red, ${blue} blue, and ${green} green marbles. What is the probability of randomly selecting a blue marble?`,fraction(blue,total),`Favorable outcomes = ${blue}; total outcomes = ${total}. Probability = ${blue}/${total} = ${fraction(blue,total)}.`,'Probability = favorable outcomes divided by total equally likely outcomes.',[fraction(red,total),fraction(green,total),fraction(blue,total-blue),fraction(total,blue)]);},
+ coordinate(){const x1=randInt(-5,5),y1=randInt(-5,5),dx=randInt(2,8),dy=randInt(2,8),x2=x1+dx,y2=y1+dy;if(randInt(0,1)===0){const ans=fraction(dy,dx);return makeQ('coordinate',`Find the slope of the line through (${x1}, ${y1}) and (${x2}, ${y2}).`,ans,`m = (y₂−y₁)/(x₂−x₁) = (${y2}−(${y1}))/(${x2}−(${x1})) = ${dy}/${dx} = ${ans}.`,'Slope = change in y divided by change in x.',[fraction(dx,dy),fraction(dy+1,dx),fraction(dy,dx+1),fraction(-dy,dx)]);}
+ const ans=round(Math.sqrt(dx*dx+dy*dy),2);return makeQ('coordinate',`Find the distance between (${x1}, ${y1}) and (${x2}, ${y2}), rounded to 2 decimal places.`,ans,`Distance = √[(${dx})² + (${dy})²] = √${dx*dx+dy*dy} ≈ ${ans}.`,'Use the distance formula and square the horizontal and vertical changes.',[round(ans+1,2),round(ans-1,2),round(dx+dy,2),round(Math.abs(dx-dy),2)]);}
+ };
+ if(topic==='all')topic=pick(Object.keys(generators));
+ if(!generators[topic])throw new Error('Unknown topic: '+topic);
+ return generators[topic]();
+}
+
+// A separate bank of contextual word problems. Values are generated first,
+// then used consistently in the prompt, answer, and explanation.
+function generateWordProblem(topic, level){
+ const money = n => '₱' + n.toLocaleString('en-PH');
+ switch(topic){
+  case 'arithmetic': {
+   const packs=randInt(3,level===1?8:15),each=randInt(4,level===1?12:25),extra=randInt(5,30),ans=packs*each+extra;
+   return makeQ(topic,`A school club buys ${packs} packs of index cards with ${each} cards in each pack. The teacher then adds ${extra} loose cards. How many cards are there altogether?`,ans,`${packs} × ${each} = ${packs*each}; then ${packs*each} + ${extra} = ${ans} cards.`,'Multiply the number of packs by the cards per pack, then add the loose cards.',[ans-extra,ans+extra,packs+each+extra]);
+  }
+  case 'fractions': {
+   const total=randInt(24,level===1?60:120),den=pick([2,3,4,5,6,8]),num=randInt(1,den-1),ans=fraction(total*num,den);
+   return makeQ(topic,`A water container holds ${total} liters when full. A family uses ${num}/${den} of the water. How many liters did they use?`,ans,`Amount used = ${num}/${den} × ${total} = ${ans} liters.`,'Multiply the fraction by the total amount.',[fraction(total*(den-num),den),String(total/den),String(total*num)]);
+  }
+  case 'percent': {
+   const price=pick([200,240,300,400,500,800,1000]),rate=pick([10,15,20,25,30]),discount=price*rate/100,ans=price-discount;
+   return makeQ(topic,`A school bag costs ${money(price)} and is on sale for ${rate}% off. What is its sale price?`,ans,`Discount = ${rate}% × ${price} = ${money(discount)}. Sale price = ${price} − ${discount} = ${money(ans)}.`,'Find the discount first, then subtract it from the original price.',[discount,price+discount,price*rate/100+price]);
+  }
+  case 'ratio': {
+   const red=randInt(2,7),blue=randInt(2,7),k=randInt(2,8),total=(red+blue)*k,ans=blue*k;
+   return makeQ(topic,`A paint mixture uses red and blue paint in the ratio ${red}:${blue}. If the mixture contains ${total} liters in total, how many liters are blue paint?`,ans,`Total parts = ${red}+${blue} = ${red+blue}. One part = ${total}/${red+blue} = ${k}. Blue paint = ${blue} × ${k} = ${ans} liters.`,'Add the ratio parts, find the value of one part, then multiply by the blue-paint part.',[red*k,total/(red+blue),total-red*k]);
+  }
+  case 'algebra': {
+   const rate=randInt(8,level===1?15:30),fixed=randInt(10,60),hours=randInt(2,8),ans=rate*hours+fixed;
+   return makeQ(topic,`A delivery rider earns ${money(rate)} per completed delivery plus a ${money(fixed)} allowance. If the rider completes x deliveries and receives ${money(ans)} in total, which value of x satisfies the situation?`,hours,`${rate}x + ${fixed} = ${ans}. Subtract ${fixed}: ${rate}x = ${ans-fixed}. Divide by ${rate}: x = ${hours}.`,'Translate the situation into rate × number of deliveries + allowance = total.',[hours+1,hours-1,hours+2]);
+  }
+  case 'geometry': {
+   const l=randInt(5,level===1?12:25),w=randInt(3,level===1?9:18),ans=2*(l+w);
+   return makeQ(topic,`A rectangular garden is ${l} meters long and ${w} meters wide. How many meters of fencing are needed to go around the entire garden?`,ans,`Fencing needed is the perimeter: P = 2(l+w) = 2(${l}+${w}) = ${ans} meters.`,'The fencing goes around the garden, so calculate perimeter, not area.',[l*w,l+w,2*l+w]);
+  }
+  case 'trig': {
+   const [opp,adj,hyp]=pick(triples),ans=fraction(opp,hyp);
+   return makeQ(topic,`A ramp forms a right triangle. Relative to the angle at the ground, the vertical rise is ${opp} m and the ramp length is ${hyp} m. What is the sine of the angle?`,ans,`Sine = opposite/hypotenuse = ${opp}/${hyp} = ${ans}.`,'Sine uses opposite over hypotenuse.',[fraction(adj,hyp),fraction(opp,adj),fraction(hyp,opp)]);
+  }
+  case 'roots': {
+   const side=randInt(4,level===1?12:20),area=side*side;
+   return makeQ(topic,`A square tile has an area of ${area} cm². What is the length of one side?`,side,`Side = √area = √${area} = ${side} cm.`,'The side length is the square root of the area.',[side+1,side-1,area/2]);
+  }
+  case 'logs': {
+   const base=3,power=randInt(2,level===1?3:5),count=base**power;
+   return makeQ(topic,`A bacteria culture triples every hour. It starts with 1 unit and follows the model N = 3ᵗ. After how many hours will it reach ${count} units?`,power,`Solve 3ᵗ = ${count}. Therefore t = log₃(${count}) = ${power} hours.`,'Rewrite the exponential equation as a logarithm. The base in the model is 3.',[power-1,power+1,count]);
+  }
+  case 'sequence': {
+   const start=randInt(2,15),diff=randInt(2,level===1?5:9),day=randInt(3,8),ans=start+(day-1)*diff;
+   return makeQ(topic,`A student saves ₱${start} on the first day and increases the amount saved by ₱${diff} each day. How much will the student save on day ${day}?`,ans,`This is an arithmetic sequence. aₙ = a₁ + (n−1)d = ${start} + (${day}−1)(${diff}) = ₱${ans}.`,'Use the nth-term formula for an arithmetic sequence.',[start+day*diff,start+(day-1)+diff,ans+diff]);
+  }
+  case 'statistics': {
+   const scores=Array.from({length:5},()=>randInt(70,100)),sum=scores.reduce((a,b)=>a+b,0),ans=round(sum/5,1);
+   return makeQ(topic,`A student receives the following quiz scores: ${scores.join(', ')}. What is the mean score?`,ans,`Mean = (${scores.join(' + ')}) ÷ 5 = ${sum}/5 = ${ans}.`,'Add all five scores, then divide by 5.',[round(ans+2,1),round(ans-2,1),sum]);
+  }
+  case 'probability': {
+   const red=randInt(2,8),blue=randInt(2,8),green=randInt(2,8),total=red+blue+green,ans=fraction(red,total);
+   return makeQ(topic,`A box contains ${red} red, ${blue} blue, and ${green} yellow tokens. One token is selected at random. What is the probability of selecting a red token?`,ans,`Favorable outcomes = ${red}; total outcomes = ${total}. Probability = ${red}/${total} = ${ans}.`,'Divide the number of red tokens by the total number of tokens, then simplify.',[fraction(blue,total),fraction(green,total),fraction(red,total-red)]);
+  }
+  case 'coordinate': {
+   const x=randInt(2,8),y=randInt(2,8),ans=fraction(y,x);
+   return makeQ(topic,`On a map grid, a straight path moves ${x} units to the right and ${y} units upward. What is the slope of the path?`,ans,`Slope = rise/run = ${y}/${x} = ${ans}.`,'Slope is vertical change divided by horizontal change.',[fraction(x,y),fraction(y+1,x),fraction(y,x+1)]);
+  }
+ }
+ return null;
+}
+function normalizeAnswer(value){
+ return String(value).trim().replace(/\s+/g,'').replace(/−/g,'-').replace(/×/g,'*').replace(/÷/g,'/').replace(/²/g,'^2').replace(/√/g,'sqrt').toLowerCase();
+}
+function answersMatch(value, expected){
+ const a=normalizeAnswer(value),b=normalizeAnswer(expected);
+ if(a===b)return true;
+ const fractionValue=s=>{const m=s.match(/^(-?\d+)\/(-?\d+)$/);return m&&Number(m[2])!==0?Number(m[1])/Number(m[2]):null;};
+ const fa=fractionValue(a),fb=fractionValue(b);
+ if(fa!==null&&fb!==null)return Math.abs(fa-fb)<1e-9;
+ const na=Number(a),nb=Number(b);
+ return a!==''&&b!==''&&Number.isFinite(na)&&Number.isFinite(nb)&&Math.abs(na-nb)<0.00051;
+}
+function chooseResponseMode(q){
+ const roll=randInt(1,100);
+ const symbolic=/[√²^x]/.test(q.answer);
+ if(symbolic && roll<=22)return 'builder';
+ if(roll<=52)return 'choice';
+ return 'typed';
+}
+function renderAnswerInput(){
+ const mode=question.responseMode;
+ $('options').innerHTML='';
+ if(mode==='choice'){
+  buildChoices(question).forEach((value,index)=>{const button=document.createElement('button');button.type='button';button.className='option';button.textContent=String.fromCharCode(65+index)+'. '+value;button.dataset.value=value;button.addEventListener('click',()=>submitAnswer(value));$('options').appendChild(button);});
+  return;
+ }
+ const isBuilder=mode==='builder';
+ const label=document.createElement('div');label.className='entry-label';label.textContent=isBuilder?'Complete the expression. Use the symbol keys if needed.':'Type your answer below.';
+ $('options').appendChild(label);
+ const row=document.createElement('div');row.className='answer-entry';
+ const input=document.createElement('input');input.id='studentAnswer';input.type='text';input.autocomplete='off';input.autocapitalize='off';input.spellcheck=false;input.placeholder=isBuilder?'Your mathematical expression':'Enter your answer';input.setAttribute('aria-label','Your answer');
+ const submit=document.createElement('button');submit.type='button';submit.textContent='Submit answer';submit.addEventListener('click',()=>submitAnswer(input.value));
+ input.addEventListener('keydown',event=>{if(event.key==='Enter')submitAnswer(input.value);});
+ row.append(input,submit);$('options').appendChild(row);
+ if(isBuilder){
+  const keypad=document.createElement('div');keypad.className='keypad';keypad.setAttribute('aria-label','Math symbol keypad');
+  ['x','^','(',')','+','−','×','÷','√','²','/','⌫'].forEach(symbol=>{
+   const key=document.createElement('button');key.type='button';key.textContent=symbol;key.addEventListener('click',()=>{
+    const start=input.selectionStart??input.value.length,end=input.selectionEnd??input.value.length;
+    if(symbol==='⌫'){input.value=input.value.slice(0,Math.max(0,start-1))+input.value.slice(end);input.setSelectionRange(Math.max(0,start-1),Math.max(0,start-1));}
+    else{const token=symbol==='−'?'-':symbol==='×'?'*':symbol==='÷'?'/':symbol;input.value=input.value.slice(0,start)+token+input.value.slice(end);input.setSelectionRange(start+token.length,start+token.length);}
+    input.focus();
+   });keypad.appendChild(key);
+  });
+  $('options').appendChild(keypad);
+ }
+}
+
+function buildChoices(q){
+ const values=[];const add=v=>{v=String(v);if(v!==q.answer&&!values.includes(v))values.push(v);};
+ q.wrong.forEach(add);
+ if(values.length<3 && Number.isFinite(Number(q.answer))){const n=Number(q.answer);for(const d of [1,-1,2,-2,3,-3,5,-5,10,-10,0.5,-0.5]){add(round(n+d,3));if(values.length>=3)break;}}
+ const safeFallback=['None of the above','Cannot be determined','Not enough information','All of the above'];
+ for(const v of safeFallback){if(values.length>=3)break;add(v);}
+ return [q.answer,...values.slice(0,3)].sort(()=>Math.random()-0.5);
+}
+function stopClocks(){clearInterval(timerId);clearTimeout(autoId);timerId=null;autoId=null;}
+function selectedTopicKeys(){return [...document.querySelectorAll('input[name="topic"]:checked')].map(el=>el.value);}
+function syncTopicChecks(changed){
+ const all=$('topicAll'),boxes=[...document.querySelectorAll('input[name="topic"]')];
+ if(changed===all){boxes.forEach(box=>box.checked=all.checked);}
+ else{all.checked=boxes.every(box=>box.checked);}
+ if(!boxes.some(box=>box.checked)){const fallback=changed&&changed.name==='topic'?changed:null;if(fallback)fallback.checked=true;else boxes.forEach(box=>box.checked=true);all.checked=boxes.every(box=>box.checked);}
+}
+function startSession(){const chosen=selectedTopicKeys();if(!chosen.length){$('feedback').className='feedback show bad';$('feedback').textContent='Select at least one topic before starting.';return;}stopClocks();score=attempts=streak=bestStreak=questionNo=0;sessionMode=$('mode').value;examLimit=Number($('count').value);finished=false;document.body.classList.toggle('exam-active',sessionMode==='exam');clearStats();updateStats();renderFocus();renderHistory();nextQuestion();}
+function nextQuestion(){stopClocks();if(finished)return;if(sessionMode==='exam'&&questionNo>=examLimit){endExam();return;}questionNo++;locked=false;const selectedTopics=selectedTopicKeys();question=generate(pick(selectedTopics),$('difficulty').value);
+ // Roughly one question in three is a contextual word problem, spread across topics.
+ if(randInt(1,100)<=34){const word=generateWordProblem(question.topic,{easy:1,medium:2,hard:3}[$('difficulty').value]||2);if(word)question=word;}
+ question.responseMode=chooseResponseMode(question);
+ $('topicPill').textContent=names[question.topic].toUpperCase();$('diffPill').textContent=$('difficulty').value.toUpperCase();$('numberPill').textContent=sessionMode==='exam'?`QUESTION ${questionNo} / ${examLimit}`:`QUESTION ${questionNo}`;
+ $('question').textContent=question.prompt;$('visual').innerHTML=question.visual;$('feedback').className='feedback';$('feedback').textContent='';$('solution').classList.remove('show');$('solutionSteps').innerHTML='';$('solutionFinal').textContent='';$('hint').disabled=false;$('next').disabled=true;$('next').textContent='Next question →';
+ if(question.responseMode==='choice')renderAnswerInput();else renderAnswerInput();
+ secondsLeft=Number($('duration').value);showTimer();if(secondsLeft>0){timerId=setInterval(()=>{secondsLeft--;showTimer();if(secondsLeft<=0&&!locked){stopClocks();recordAnswer(false,null,`Time is up. Correct answer: ${question.answer}. ${question.explanation}`);}},1000);}updateStats();}
+function showTimer(){$('timer').textContent=secondsLeft>0?`⏱ ${secondsLeft}s`:'⏱ ∞';}
+function submitAnswer(value){if(locked)return;const selected=String(value??'').trim();if(!selected){$('feedback').className='feedback show bad';$('feedback').textContent='Please enter or select an answer first.';return;}const correct=answersMatch(selected,question.answer);recordAnswer(correct,selected,correct?'Correct! '+question.explanation:'Incorrect. Correct answer: '+question.answer+'. '+question.explanation);}
+function renderSolution(){
+ const steps=question.steps&&question.steps.length?question.steps:question.explanation.split(/;\\s*/).filter(Boolean).map((part,index)=>({title:`Step ${index+1}`,body:part.trim()}));
+ $('solutionSteps').innerHTML=steps.map((step,index)=>`<div class="solution-step"><b>${escapeHTML(step.title||`Step ${index+1}`)}</b><div>${escapeHTML(step.body)}</div></div>`).join('');
+ $('solutionFinal').textContent='Final answer: '+question.answer;
+ $('solution').classList.add('show');
+}
+function recordAnswer(correct,selected,message){if(locked||!question)return;locked=true;stopClocks();attempts++;totals[question.topic]++;if(correct){score++;streak++;bestStreak=Math.max(bestStreak,streak);}else{misses[question.topic]++;streak=0;}
+ document.querySelectorAll('.option').forEach(button=>{button.disabled=true;if(button.dataset.value===question.answer)button.classList.add('correct');if(selected!==null&&button.dataset.value===selected&&!correct)button.classList.add('wrong');});
+ $('feedback').className='feedback show '+(correct?'good':'bad');$('feedback').textContent=message;renderSolution();$('next').disabled=false;$('hint').disabled=true;answerHistory.unshift({topic:question.topic,prompt:question.prompt,answer:question.answer,explanation:question.explanation,correct});renderHistory();renderFocus();updateStats();
+ if($('transition').value==='auto'&&sessionMode==='exam'&&questionNo<examLimit){$('next').disabled=true;autoId=setTimeout(nextQuestion,2000);}else if(sessionMode==='exam'&&questionNo>=examLimit){$('next').textContent='View exam results';}
+}
+function endExam(){finished=true;locked=true;stopClocks();$('timer').textContent='FINISHED';$('numberPill').textContent='COMPLETED';$('question').textContent=`Exam completed! You scored ${score} out of ${examLimit}.`;$('visual').innerHTML='';$('options').innerHTML='';$('feedback').className='feedback show '+(score/examLimit>=0.75?'good':'bad');$('feedback').textContent=`Final accuracy: ${Math.round(score/examLimit*100)}%. Review your focus report and study recommendations.`;$('next').disabled=true;$('hint').disabled=true;$('next').textContent='Next question →';updateStats();}
+function updateStats(){$('score').textContent=score;$('attempts').textContent=attempts;$('accuracy').textContent=(attempts?Math.round(score/attempts*100):0)+'%';$('streak').textContent=bestStreak;const pct=sessionMode==='exam'?Math.min(100,attempts/examLimit*100):(attempts?score/attempts*100:0);$('progress').style.width=pct+'%';$('progressText').textContent=sessionMode==='exam'?`${attempts} of ${examLimit} questions answered • ${score} correct.`:(attempts?`${score} correct out of ${attempts} attempted.`:'Start a session to track your progress.');$('pdf').disabled=attempts===0;}
+function renderFocus(){const rows=Object.keys(misses).filter(k=>totals[k]>0).map(k=>({topic:k,missed:misses[k],total:totals[k],rate:misses[k]/totals[k]})).sort((a,b)=>b.rate-a.rate||b.missed-a.missed);$('focus').innerHTML=rows.length?rows.map(row=>`<div class="focus"><div class="focus-title"><span>${names[row.topic]} (${row.missed}/${row.total} missed)</span><b>${Math.round(row.rate*100)}%</b></div><div class="bar"><i style="width:${row.rate*100}%"></i></div></div>`).join(''):'<p class="small">Your focus report appears after you answer.</p>';}
+function escapeHTML(value){return String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));}
+function renderHistory(){if(!answerHistory.length){$('history').innerHTML='<p class="small">No answers yet.</p>';return;}$('history').innerHTML=answerHistory.slice(0,30).map(item=>`<div class="history-item"><strong>${item.correct?'✓ Correct':'✗ Incorrect'}</strong> — ${escapeHTML(names[item.topic])}<br>${escapeHTML(item.prompt)}<br><span class="small">Correct answer: ${escapeHTML(item.answer)}</span></div>`).join('');}
+function resetSession(){stopClocks();question=null;locked=true;finished=false;score=attempts=streak=bestStreak=questionNo=secondsLeft=0;examLimit=Number($('count').value);sessionMode=$('mode').value;document.body.classList.remove('exam-active');clearStats();$('question').textContent='Choose your settings, then start a session.';$('visual').innerHTML='';$('options').innerHTML='';$('feedback').className='feedback';$('feedback').textContent='';$('solution').classList.remove('show');$('solutionSteps').innerHTML='';$('solutionFinal').textContent='';$('topicPill').textContent='READY';$('diffPill').textContent=$('difficulty').value.toUpperCase();$('numberPill').textContent='QUESTION —';$('timer').textContent='⏱ --';$('next').disabled=true;$('hint').disabled=true;$('pdf').disabled=true;$('next').textContent='Next question →';updateStats();renderFocus();renderHistory();}
+function practiceWeakest(){const ranked=Object.keys(misses).filter(k=>totals[k]>0).sort((a,b)=>(misses[b]/totals[b])-(misses[a]/totals[a]));if(!ranked.length){$('feedback').className='feedback show';$('feedback').textContent='Answer a few questions first so MathLab can identify a topic to review.';return;}document.querySelectorAll('input[name="topic"]').forEach(box=>box.checked=box.value===ranked[0]);$('topicAll').checked=false;$('mode').value='practice';startSession();}
+function printReportFallback(){const rows=Object.keys(misses).filter(k=>totals[k]>0).map(k=>({topic:k,missed:misses[k],total:totals[k],rate:misses[k]/totals[k]})).sort((a,b)=>b.rate-a.rate);const wrong=answerHistory.filter(item=>!item.correct);const popup=window.open('','_blank');if(!popup){alert('Your browser blocked the report window. Allow pop-ups, then try again.');return;}const esc=escapeHTML;popup.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>MathLab CET Study Report</title><style>body{font:14px/1.55 Arial,sans-serif;max-width:850px;margin:35px auto;padding:0 22px;color:#172033}h1,h2{color:#3730a3}section{margin:22px 0;border-bottom:1px solid #ddd;padding-bottom:12px}.muted{color:#667085}.item{margin:12px 0}@media print{button{display:none}body{margin:12mm auto}}</style></head><body><button onclick="window.print()">Print / Save as PDF</button><h1>MathLab CET Practice</h1><p>Weakness Analysis and Study Report</p><p class="muted">Generated: ${esc(new Date().toLocaleString())}</p><section><h2>Performance summary</h2><p>Attempted: ${attempts} | Correct: ${score} | Incorrect: ${attempts-score} | Accuracy: ${Math.round(score/attempts*100)}% | Best streak: ${bestStreak}</p></section><section><h2>Topic performance</h2>${rows.length?rows.map(r=>`<p>${esc(names[r.topic])}: ${r.missed}/${r.total} missed (${Math.round(r.rate*100)}%)</p>`).join(''):'<p>No topic data yet.</p>'}</section><section><h2>Recommended review</h2>${(rows.length?rows:Object.keys(tips).map(topic=>({topic}))).map(r=>`<div class="item"><b>${esc(names[r.topic])}</b><p>${esc(tips[r.topic])}</p></div>`).join('')}</section><section><h2>Incorrect questions to revisit</h2>${wrong.length?wrong.map((r,i)=>`<div class="item"><b>${i+1}. ${esc(names[r.topic])}</b><p>${esc(r.prompt)}</p><p>Correct answer: ${esc(r.answer)}</p><p>${esc(r.explanation)}</p></div>`).join(''):'<p>No incorrect answers recorded.</p>'}</section><p class="muted">Designed and Developed by: JOHN DANIEL ANGELES</p></body></html>`);popup.document.close();}function generatePDF(){if(!attempts){alert('Answer some questions before generating your report.');return;}if(!window.jspdf||!window.jspdf.jsPDF){printReportFallback();return;}const {jsPDF}=window.jspdf;const doc=new jsPDF();const width=doc.internal.pageSize.getWidth(),height=doc.internal.pageSize.getHeight(),margin=15,usable=width-2*margin;let y=20;
+ function ensure(h=12){if(y+h>height-18){doc.addPage();y=20;}}
+ function para(text,size=10){doc.setFont('helvetica','normal');doc.setFontSize(size);const lines=doc.splitTextToSize(String(text),usable);const lineH=size>=14?7:5;ensure(lines.length*lineH+3);doc.text(lines,margin,y);y+=lines.length*lineH+3;}
+ function heading(text){ensure(13);doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text(text,margin,y);y+=8;}
+ doc.setFont('helvetica','bold');doc.setFontSize(20);doc.text('MathLab CET Practice',margin,y);y+=9;para('Weakness Analysis and Study Report',12);para('Generated: '+new Date().toLocaleString(),9);y+=3;
+ heading('1. Performance summary');para('Session mode: '+sessionMode);para('Questions attempted: '+attempts);para('Correct answers: '+score);para('Incorrect answers: '+(attempts-score));para('Accuracy: '+Math.round(score/attempts*100)+'%');para('Best streak: '+bestStreak);y+=3;
+ const ranked=Object.keys(misses).filter(k=>totals[k]>0).map(k=>({topic:k,missed:misses[k],total:totals[k],rate:misses[k]/totals[k]})).sort((a,b)=>b.rate-a.rate||b.missed-a.missed);
+ heading('2. Topic performance');if(!ranked.length)para('No topic-specific data available.');ranked.forEach(r=>para(`${names[r.topic]}: ${r.missed}/${r.total} missed (${(r.rate*100).toFixed(1)}% missed; ${Math.round((1-r.rate)*100)}% accuracy)`));
+ heading('3. Recommended review');(ranked.length?ranked:Object.keys(tips).map(topic=>({topic}))).forEach(r=>{ensure(15);doc.setFont('helvetica','bold');doc.setFontSize(10);doc.text(names[r.topic],margin,y);y+=6;para(tips[r.topic],9);});
+ heading('4. Incorrect questions to revisit');const wrong=answerHistory.filter(a=>!a.correct);if(!wrong.length)para('No incorrect answers recorded. Great work!');wrong.slice(0,50).forEach((item,i)=>{para(`${i+1}. ${names[item.topic]} — ${item.prompt}`,9);para('Correct answer: '+item.answer,9);para('Explanation: '+item.explanation,9);});
+ ensure(12);y+=4;para('Designed and Developed by: JOHN DANIEL ANGELES',9);doc.save('MathLab_CET_Study_Report_'+new Date().toISOString().slice(0,10)+'.pdf');}
+$('start').addEventListener('click',()=>{try{startSession();}catch(error){console.error(error);$('feedback').className='feedback show bad';$('feedback').textContent='A question-generation error occurred. Please change the topic or difficulty and try again.';}});
+$('reset').addEventListener('click',resetSession);$('next').addEventListener('click',()=>{if(sessionMode==='exam'&&questionNo>=examLimit&&locked){endExam();}else{nextQuestion();}});$('hint').addEventListener('click',()=>{if(!locked&&question){$('feedback').className='feedback show';$('feedback').textContent='Hint: '+question.hint;}});$('pdf').addEventListener('click',generatePDF);$('weakPractice').addEventListener('click',practiceWeakest);
+$('topicAll').addEventListener('change',event=>syncTopicChecks(event.target));
+document.querySelectorAll('input[name="topic"]').forEach(box=>box.addEventListener('change',event=>syncTopicChecks(event.target)));
+$('mode').addEventListener('change',()=>{if(!question)sessionMode=$('mode').value;});$('difficulty').addEventListener('change',()=>{if(!question)$('diffPill').textContent=$('difficulty').value.toUpperCase();});
+resetSession();
+</script>
+</body>
+</html>
