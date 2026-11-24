@@ -90,4 +90,437 @@ function answer(v){if(locked)return;let a=Number(v),b=Number(q.answer),ok=v===q.
 function endExam(){finished=true;locked=true;clearInterval(timer);clearTimeout(autoTimer);$("timer").textContent="FINISHED";$("numberPill").textContent="COMPLETED";$("question").textContent=`Exam completed! You scored ${score} out of ${limit}.`;$("visual").innerHTML="";$("options").innerHTML="";$("feedback").className="feedback show "+(score/limit>=.75?"good":"bad");$("feedback").textContent=`Final accuracy: ${Math.round(score/limit*100)}%. Review the focus report and generate your PDF study guide.`;$("next").disabled=true;$("hint").disabled=true;update()}
 function update(){ $("score").textContent=score;$("attempts").textContent=attempts;$("accuracy").textContent=(attempts?Math.round(score/attempts*100):0)+"%";$("streak").textContent=best;$("progress").style.width=(mode==="exam"?Math.min(100,num/limit*100):(attempts?score/attempts*100:0))+"%";$("progressText").textContent=mode==="exam"?`${Math.min(num,limit)} of ${limit} questions reached • ${score} correct.`:(attempts?`${score} correct out of ${attempts} attempted.`:"Start a session to track your progress.");$("pdf").disabled=attempts===0}
 function focus(){let arr=Object.keys(misses).filter(k=>totals[k]).map(k=>({k,m:misses[k],t:totals[k],r:misses[k]/totals[k]})).sort((a,b)=>b.r-a.r||b.m-a.m);$("focus").innerHTML=arr.length?arr.map(x=>`<div class="focus"><div class="focus-title"><span>${names[x.k]} (${x.m}/${x.t} missed)</span><b>${Math.round(x.r*100)}%</b></div><div class="bar"><i style="width:${x.r*100}%"></i></div></div>`).join(""):'<p class="small">Your focus report appears after you answer.</p>'}
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":
+
+function esc(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[c]);
+}
+
+
+// ========================================
+// RECENT ANSWERS
+// ========================================
+
+function historyUI() {
+    const container = $("history");
+
+    if (!history.length) {
+        container.innerHTML =
+            '<p class="small">No answers yet.</p>';
+        return;
+    }
+
+    container.innerHTML = history.slice(0, 30).map(item => `
+        <div>
+            <strong>${item.ok ? "✓ Correct" : "✗ Incorrect"}</strong>
+            — ${esc(names[item.topic])}
+            <br>
+            ${esc(item.prompt)}
+            <br>
+            <span class="small">
+                Answer: ${esc(item.answer)}
+            </span>
+        </div>
+    `).join("");
+}
+
+
+// ========================================
+// RESET SESSION
+// ========================================
+
+function resetSession() {
+    clearInterval(timer);
+    clearTimeout(autoTimer);
+
+    q = null;
+    locked = true;
+    finished = false;
+
+    score = 0;
+    attempts = 0;
+    streak = 0;
+    best = 0;
+    num = 0;
+
+    left = 0;
+    limit = 0;
+
+    clearData();
+
+    $("question").textContent =
+        "Choose your settings, then start a session.";
+
+    $("visual").innerHTML = "";
+    $("options").innerHTML = "";
+
+    $("feedback").className = "feedback";
+    $("feedback").textContent = "";
+
+    $("topicPill").textContent = "READY";
+    $("diffPill").textContent =
+        $("difficulty").value.toUpperCase();
+
+    $("numberPill").textContent = "QUESTION —";
+    $("timer").textContent = "⏱ --";
+
+    $("next").disabled = true;
+    $("hint").disabled = true;
+    $("pdf").disabled = true;
+
+    mode = $("mode").value;
+
+    update();
+    focus();
+    historyUI();
+}
+
+
+// ========================================
+// PDF WEAKNESS REPORT
+// ========================================
+
+function generatePDF() {
+
+    if (attempts === 0) {
+        alert("Answer some questions before generating your report.");
+        return;
+    }
+
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert(
+            "The PDF library could not load. Please check your internet connection and try again."
+        );
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    const margin = 15;
+    const usableWidth = pageWidth - margin * 2;
+
+    let y = 20;
+
+    function checkPage(height = 12) {
+        if (y + height > pageHeight - 18) {
+            doc.addPage();
+            y = 20;
+        }
+    }
+
+    function title(text) {
+        checkPage(15);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(15);
+        doc.text(text, margin, y);
+        y += 9;
+    }
+
+    function paragraph(text, size = 10) {
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(size);
+
+        const lines = doc.splitTextToSize(
+            String(text),
+            usableWidth
+        );
+
+        const height = lines.length * 5;
+
+        checkPage(height);
+
+        doc.text(lines, margin, y);
+        y += height + 4;
+    }
+
+    function heading(text) {
+        checkPage(12);
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+
+        doc.text(text, margin, y);
+        y += 7;
+    }
+
+    // ------------------------------------
+    // REPORT HEADER
+    // ------------------------------------
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(21);
+
+    doc.text("MathLab CET Practice", margin, y);
+    y += 10;
+
+    doc.setFontSize(12);
+
+    doc.text("Weakness Analysis and Study Report", margin, y);
+    y += 9;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+
+    doc.text(
+        "Generated: " + new Date().toLocaleString(),
+        margin,
+        y
+    );
+
+    y += 12;
+
+    // ------------------------------------
+    // PERFORMANCE SUMMARY
+    // ------------------------------------
+
+    title("1. Performance Summary");
+
+    paragraph("Total Questions Attempted: " + attempts);
+
+    paragraph("Correct Answers: " + score);
+
+    paragraph("Incorrect Answers: " + (attempts - score));
+
+    paragraph(
+        "Overall Accuracy: " +
+        Math.round(score / attempts * 100) + "%"
+    );
+
+    paragraph("Best Streak: " + best);
+
+    y += 4;
+
+    // ------------------------------------
+    // WEAKNESS ANALYSIS
+    // ------------------------------------
+
+    title("2. Areas That Need Improvement");
+
+    const weakTopics = Object.keys(misses)
+        .filter(topic => totals[topic] > 0)
+        .map(topic => ({
+            topic,
+            missed: misses[topic],
+            total: totals[topic],
+            percentage:
+                misses[topic] / totals[topic] * 100
+        }))
+        .sort((a, b) =>
+            b.percentage - a.percentage ||
+            b.missed - a.missed
+        );
+
+    if (!weakTopics.length) {
+        paragraph(
+            "There is not enough topic-specific data yet."
+        );
+    } else {
+
+        weakTopics.forEach(item => {
+
+            heading(
+                names[item.topic] +
+                " — " +
+                item.percentage.toFixed(1) + "% missed"
+            );
+
+            paragraph(
+                "Incorrect: " + item.missed +
+                " out of " + item.total + " questions."
+            );
+        });
+    }
+
+    // ------------------------------------
+    // STUDY TIPS
+    // ------------------------------------
+
+    title("3. Recommended Study Tips");
+
+    const topicsToReview = weakTopics.length
+        ? weakTopics
+        : Object.keys(tips).map(topic => ({ topic }));
+
+    topicsToReview.forEach(item => {
+
+        heading(names[item.topic]);
+
+        paragraph(tips[item.topic]);
+    });
+
+    // ------------------------------------
+    // WORKED EXAMPLES
+    // ------------------------------------
+
+    title("4. Worked Examples");
+
+    const examples = {
+
+        trig: {
+            question: "Find sin(theta) when the opposite side is 3 and the hypotenuse is 5.",
+            solution: [
+                "Formula: sin(theta) = opposite / hypotenuse",
+                "Substitute: sin(theta) = 3 / 5",
+                "Final Answer: 3/5"
+            ]
+        },
+
+        geometry: {
+            question: "Find the area of a triangle with base 10 cm and height 6 cm.",
+            solution: [
+                "Formula: A = 1/2 x base x height",
+                "Substitute: A = 1/2 x 10 x 6",
+                "Final Answer: 30 cm2"
+            ]
+        },
+
+        fractions: {
+            question: "Add 1/2 + 1/3.",
+            solution: [
+                "Find the common denominator: 6",
+                "Convert: 3/6 + 2/6",
+                "Add: 5/6",
+                "Final Answer: 5/6"
+            ]
+        },
+
+        roots: {
+            question: "Simplify the square root of 72.",
+            solution: [
+                "Factor: 72 = 36 x 2",
+                "Separate: sqrt(36 x 2)",
+                "Simplify: sqrt(36) x sqrt(2)",
+                "Final Answer: 6 sqrt(2)"
+            ]
+        },
+
+        logs: {
+            question: "Evaluate log base 2 of 8.",
+            solution: [
+                "Convert to exponential form: 2^x = 8",
+                "Since 2^3 = 8, x = 3",
+                "Final Answer: 3"
+            ]
+        },
+
+        algebra: {
+            question: "Solve 3x + 6 = 18.",
+            solution: [
+                "Subtract 6 from both sides: 3x = 12",
+                "Divide both sides by 3: x = 4",
+                "Final Answer: x = 4"
+            ]
+        }
+
+    };
+
+    topicsToReview.forEach(item => {
+
+        const example = examples[item.topic];
+
+        if (!example) return;
+
+        heading(names[item.topic]);
+
+        paragraph("Problem: " + example.question);
+
+        example.solution.forEach(step => {
+            paragraph(step);
+        });
+
+        y += 3;
+    });
+
+    // ------------------------------------
+    // RECENT ANSWERS
+    // ------------------------------------
+
+    title("5. Recent Answer History");
+
+    history.slice(0, 30).forEach((item, index) => {
+
+        paragraph(
+            (index + 1) + ". " +
+            names[item.topic] + " | " +
+            (item.ok ? "Correct" : "Incorrect")
+        );
+
+        paragraph("Question: " + item.prompt);
+
+        paragraph("Correct Answer: " + item.answer);
+
+    });
+
+    // ------------------------------------
+    // FOOTER
+    // ------------------------------------
+
+    checkPage(20);
+
+    y += 5;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+
+    doc.text(
+        "Designed and Developed by: JOHN DANIEL ANGELES",
+        margin,
+        y
+    );
+
+    // ------------------------------------
+    // SAVE PDF
+    // ------------------------------------
+
+    const filename =
+        "MathLab_Weakness_Report_" +
+        new Date().toISOString().slice(0, 10) +
+        ".pdf";
+
+    doc.save(filename);
+}
+
+
+// ========================================
+// BUTTON EVENT LISTENERS
+// ========================================
+
+$("start").addEventListener("click", startSession);
+
+$("reset").addEventListener("click", resetSession);
+
+$("next").addEventListener("click", nextQuestion);
+
+$("hint").addEventListener("click", () => {
+
+    if (!locked && q) {
+
+        $("feedback").className = "feedback show";
+
+        $("feedback").textContent =
+            "Hint: " + q.hint;
+    }
+
+});
+
+$("pdf").addEventListener("click", generatePDF);
+
+
+// ========================================
+// INITIALIZATION
+// ========================================
+
+resetSession();
+
+</script>
+</body>
+</html>
