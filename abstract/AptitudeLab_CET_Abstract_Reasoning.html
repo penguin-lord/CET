@@ -1,0 +1,1386 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#25215f">
+  <meta name="description" content="A single-file CET abstract reasoning practice application.">
+  <title>AptitudeLab | CET Reasoning Practice</title>
+
+  <!-- MathQuill: mathematical notation and an optional editable scratchpad. -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mathquill@0.10.1-a/build/mathquill.css">
+  <style>
+    :root {
+      --bg: #f4f6fb;
+      --surface: #ffffff;
+      --ink: #172033;
+      --muted: #667085;
+      --line: #e5e9f2;
+      --primary: #5146e5;
+      --primary-dark: #3730a3;
+      --good: #15803d;
+      --bad: #dc2626;
+      --soft: #f8f9ff;
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 15px/1.5 system-ui, Arial, sans-serif;
+    }
+
+    header {
+      padding: 24px 16px;
+      color: #fff;
+      background: linear-gradient(120deg, #25215f, var(--primary));
+    }
+
+    header h1 { margin: 0; font-size: 30px; }
+    header p { margin: 5px 0 0; }
+
+    .wrap { width: min(1050px, 100%); margin: 0 auto; padding: 0 16px; }
+    main { padding: 22px 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 16px;
+    }
+
+    .card {
+      margin-bottom: 16px;
+      padding: 18px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 5px 18px #1c24500a;
+    }
+
+    h2 { margin: 0 0 12px; font-size: 18px; }
+    h3 { margin: 0 0 8px; font-size: 16px; }
+
+    .small { color: var(--muted); font-size: 12px; }
+    .controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+    label.field-label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    select, input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      font: inherit;
+    }
+
+    .topics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 7px;
+      margin-top: 8px;
+    }
+
+    .topic {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      color: var(--ink);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .topic input { accent-color: var(--primary); }
+
+    button {
+      padding: 11px 15px;
+      color: #fff;
+      background: var(--primary);
+      border: 0;
+      border-radius: 10px;
+      font: inherit;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    button.secondary { color: var(--primary-dark); background: #eef0ff; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    button:focus-visible, select:focus-visible, input:focus-visible {
+      outline: 3px solid #a5b4fc;
+      outline-offset: 2px;
+    }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 14px; }
+
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; }
+    .stat { padding: 11px; background: var(--soft); border-radius: 10px; }
+    .stat strong { display: block; font-size: 22px; }
+    .stat span { color: var(--muted); font-size: 12px; }
+
+    .progress, .bar {
+      height: 8px;
+      overflow: hidden;
+      background: #eceef5;
+      border-radius: 20px;
+    }
+
+    .progress { margin-top: 12px; }
+    .progress i, .bar i { display: block; height: 100%; background: var(--primary); }
+
+    .qhead { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; }
+    .pill {
+      display: inline-block;
+      margin: 0 3px 3px 0;
+      padding: 5px 9px;
+      color: var(--primary-dark);
+      background: #eef0ff;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .prompt {
+      margin: 18px 0 12px;
+      font-size: 20px;
+      font-weight: 750;
+      white-space: pre-line;
+    }
+
+    .timer { font-weight: 850; }
+    .visual { display: flex; flex-wrap: wrap; justify-content: center; gap: 9px; margin: 12px 0; }
+    .figure {
+      display: flex;
+      min-width: 80px;
+      min-height: 80px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 7px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+    }
+
+    .figure svg { width: 72px; height: 72px; }
+    .matrix { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; max-width: 300px; margin: 12px auto; }
+    .matrix .figure { min-width: 0; }
+    .missing { color: #9ca3af; font-size: 28px; font-weight: 900; }
+
+    .options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .option {
+      min-height: 54px;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line);
+      text-align: left;
+      overflow-wrap: anywhere;
+    }
+
+    .option.correct { color: #166534; background: #ecfdf3; border-color: var(--good); }
+    .option.wrong { color: #991b1b; background: #fef2f2; border-color: var(--bad); }
+
+    .feedback, .hintbox, .solution {
+      display: none;
+      margin-top: 13px;
+      padding: 13px;
+      border-radius: 10px;
+    }
+
+    .feedback.show, .hintbox.show, .solution.show { display: block; }
+    .good { color: #166534; background: #ecfdf3; }
+    .bad { color: #991b1b; background: #fef2f2; }
+    .hintbox { color: #1e40af; background: #eff6ff; }
+    .solution { background: #fbfcff; border: 1px solid var(--line); }
+    .step { padding: 9px 0; border-bottom: 1px solid var(--line); }
+    .step:last-child { border-bottom: 0; }
+    .answerline { margin-top: 9px; padding: 10px; color: #166534; background: #ecfdf3; border-radius: 8px; font-weight: 800; }
+
+    .math-line { margin-top: 6px; overflow-x: auto; font-size: 19px; }
+    .scratchpad { margin-top: 14px; padding: 12px; background: var(--soft); border: 1px solid var(--line); border-radius: 10px; }
+    .math-field {
+      min-height: 42px;
+      margin-top: 7px;
+      padding: 8px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 20px;
+    }
+
+    .focus { margin: 12px 0; }
+    .focus-title { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 4px; font-size: 13px; }
+    .history { max-height: 250px; overflow: auto; }
+    .history-item { padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+
+    .notice, .status {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 9px;
+      font-size: 12px;
+    }
+
+    .notice { color: #854d0e; background: #fffbeb; border: 1px solid #fde68a; }
+    .status { color: #475467; background: var(--soft); }
+    footer { padding: 18px; color: var(--muted); text-align: center; font-size: 12px; }
+
+    @media (max-width: 740px) {
+      .grid { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .options { grid-template-columns: 1fr; }
+      .prompt { font-size: 18px; }
+      .topics { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 380px) {
+      .topics, .controls { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>AptitudeLab</h1>
+      <p>CET Abstract Reasoning Practice</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="grid">
+      <section class="card" aria-labelledby="setupTitle">
+        <h2 id="setupTitle">Practice setup</h2>
+
+        <div class="controls">
+          <div>
+            <label class="field-label" for="mode">SESSION MODE</label>
+            <select id="mode">
+              <option value="practice">Practice — unlimited</option>
+              <option value="exam">Exam simulation</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="field-label" for="count">EXAM LENGTH</label>
+            <select id="count">
+              <option>30</option>
+              <option selected>50</option>
+              <option>75</option>
+              <option>100</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="field-label" for="difficulty">DIFFICULTY</label>
+            <select id="difficulty">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="field-label" for="duration">TIME PER QUESTION</label>
+            <select id="duration">
+              <option value="30">30 seconds</option>
+              <option value="45" selected>45 seconds</option>
+              <option value="60">60 seconds</option>
+              <option value="90">90 seconds</option>
+              <option value="0">No timer</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="field-label" for="transition">AFTER ANSWERING</label>
+            <select id="transition">
+              <option value="manual">Wait for Next Question</option>
+              <option value="auto">Auto-next after 2 seconds (exam)</option>
+            </select>
+          </div>
+        </div>
+
+        <label class="field-label" style="margin-top:14px">SELECT TOPICS</label>
+        <div class="topics" id="topics">
+          <label class="topic"><input type="checkbox" value="analogy" checked> Verbal analogies</label>
+          <label class="topic"><input type="checkbox" value="odd" checked> Odd one out</label>
+          <label class="topic"><input type="checkbox" value="series" checked> Number & letter series</label>
+          <label class="topic"><input type="checkbox" value="matrix" checked> Figure matrices</label>
+          <label class="topic"><input type="checkbox" value="rotation" checked> Mental rotation</label>
+          <label class="topic"><input type="checkbox" value="mirror" checked> Mirror images</label>
+          <label class="topic"><input type="checkbox" value="logic" checked> Logical deduction</label>
+          <label class="topic"><input type="checkbox" value="classification" checked> Shape classification</label>
+          <label class="topic"><input type="checkbox" value="coding" checked> Letter coding</label>
+          <label class="topic"><input type="checkbox" value="direction" checked> Direction & position</label>
+        </div>
+
+        <div class="actions">
+          <button id="start">Start session</button>
+          <button class="secondary" id="reset" type="button">Reset</button>
+          <button class="secondary" id="weak" type="button">Practice weakest topic</button>
+        </div>
+
+        <p class="small">Single-file application. The question generators run locally, so practice works offline.</p>
+        <div class="status" id="mathStatus" role="status">MathQuill is loading…</div>
+        <div class="notice">
+          These are original practice questions, not an official IQ test or a predictor of CET results.
+          MathQuill formats mathematical notation and provides an optional working area; it does not generate the questions.
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="overviewTitle">
+        <h2 id="overviewTitle">Session overview</h2>
+        <div class="stats">
+          <div class="stat"><strong id="score">0</strong><span>Correct</span></div>
+          <div class="stat"><strong id="attempts">0</strong><span>Attempted</span></div>
+          <div class="stat"><strong id="accuracy">0%</strong><span>Accuracy</span></div>
+          <div class="stat"><strong id="streak">0</strong><span>Best streak</span></div>
+        </div>
+        <div class="progress"><i id="progressFill" style="width:0%"></i></div>
+        <p class="small" id="progressText">Start a session to track your progress.</p>
+      </section>
+    </div>
+
+    <section class="card" aria-labelledby="questionTitle">
+      <div class="qhead">
+        <div>
+          <span class="pill" id="topicPill">READY</span>
+          <span class="pill" id="diffPill">MEDIUM</span>
+          <span class="pill" id="numberPill">QUESTION —</span>
+        </div>
+        <div class="timer" id="timer" aria-live="polite">⏱ --</div>
+      </div>
+
+      <h2 class="prompt" id="questionTitle">Choose your topics, then start a session.</h2>
+      <div id="visual" class="visual"></div>
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback" role="status"></div>
+      <div class="hintbox" id="hintbox"></div>
+
+      <div class="solution" id="solution">
+        <h3>Step-by-step solution</h3>
+        <div id="steps"></div>
+        <div class="answerline" id="finalAnswer"></div>
+      </div>
+
+      <div class="scratchpad">
+        <label class="field-label" for="mathField">OPTIONAL MATH SCRATCHPAD</label>
+        <div class="small">Use this for working out number patterns or writing symbols. It does not affect your score.</div>
+        <div id="mathField" class="math-field" aria-label="Optional mathematical working area"></div>
+      </div>
+
+      <div class="actions">
+        <button id="next" disabled>Next question →</button>
+        <button class="secondary" id="hint" disabled>Show a hint</button>
+        <button class="secondary" id="pdf" disabled>Generate study report</button>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Areas to focus on</h2>
+        <p class="small">Ranked by missed-question percentage. Small samples may be misleading.</p>
+        <div id="focus"><p class="small">Your focus report appears after you answer.</p></div>
+      </section>
+
+      <section class="card">
+        <h2>Recent answers</h2>
+        <div id="history" class="history"><p class="small">No answers yet.</p></div>
+      </section>
+    </div>
+  </main>
+
+  <footer>Designed and Developed by <strong>JOHN DANIEL ANGELES</strong></footer>
+
+  <!-- Dependencies: jQuery must load before MathQuill. -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathquill@0.10.1-a/build/mathquill.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script>
+    "use strict";
+
+    // ---------------------------------------------------------------------
+    // DOM helpers and shared constants
+    // ---------------------------------------------------------------------
+
+    const $ = (id) => document.getElementById(id);
+    const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    const pick = (items) => items[randomInt(0, items.length - 1)];
+
+    function shuffle(items) {
+      const result = [...items];
+
+      for (let index = result.length - 1; index > 0; index -= 1) {
+        const swapIndex = randomInt(0, index);
+        [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
+      }
+
+      return result;
+    }
+
+    const TOPIC_NAMES = {
+      analogy: "Verbal analogies",
+      odd: "Odd one out",
+      series: "Number & letter series",
+      matrix: "Figure matrices",
+      rotation: "Mental rotation",
+      mirror: "Mirror images",
+      logic: "Logical deduction",
+      classification: "Shape classification",
+      coding: "Letter coding",
+      direction: "Direction & position"
+    };
+
+    const SHAPES = ["circle", "square", "triangle", "diamond", "pentagon", "star", "cross"];
+
+    // MathQuill is a renderer/input tool, not a question-generation engine.
+    let MQ = null;
+    let scratchMathField = null;
+
+    function initializeMathQuill() {
+      if (window.MathQuill && window.jQuery) {
+        MQ = window.MathQuill.getInterface(2);
+        scratchMathField = MQ.MathField($("mathField"), {
+          spaceBehavesLikeTab: true,
+          restrictMismatchedBrackets: true
+        });
+        $("mathStatus").textContent = "MathQuill loaded. The scratchpad is ready.";
+      } else {
+        $("mathStatus").textContent =
+          "MathQuill could not load. The practice app still works; the scratchpad is unavailable.";
+      }
+    }
+
+    // Render only app-created LaTeX values. API-provided HTML is not accepted.
+    function appendMath(parent, latex) {
+      const span = document.createElement("span");
+      span.className = "math-line";
+      span.textContent = latex;
+      parent.appendChild(span);
+
+      if (MQ) {
+        MQ.StaticMath(span);
+      }
+    }
+
+    // ---------------------------------------------------------------------
+    // SVG drawing helpers. Every diagram uses the same values as its key.
+    // ---------------------------------------------------------------------
+
+    function shapeSvg(shape, rotation = 0, fill = "#5146e5", mirror = false) {
+      const paths = {
+        circle: '<circle cx="50" cy="50" r="28"/>',
+        square: '<rect x="23" y="23" width="54" height="54"/>',
+        triangle: '<path d="M50 15 L85 82 H15 Z"/>',
+        diamond: '<path d="M50 12 L88 50 L50 88 L12 50 Z"/>',
+        pentagon: '<path d="M50 12 L88 42 L73 86 H27 L12 42 Z"/>',
+        star: '<path d="M50 8 L61 38 L93 38 L67 57 L77 89 L50 70 L23 89 L33 57 L7 38 L39 38 Z"/>',
+        cross: '<path d="M38 12 H62 V38 H88 V62 H62 V88 H38 V62 H12 V38 H38 Z"/>'
+      };
+
+      const reflection = mirror ? "scale(-1 1)" : "";
+      return `
+        <svg viewBox="0 0 100 100" role="img" aria-label="${shape}">
+          <g transform="${reflection} rotate(${rotation} 50 50)"
+             fill="${fill}" stroke="#25215f" stroke-width="2">
+            ${paths[shape]}
+          </g>
+        </svg>`;
+    }
+
+    function arrowSvg(angle = 0, mirror = false) {
+      const transform = mirror
+        ? `translate(100 0) scale(-1 1) rotate(${angle} 50 50)`
+        : `rotate(${angle} 50 50)`;
+
+      return `
+        <svg viewBox="0 0 100 100" role="img" aria-label="Arrow direction">
+          <g transform="${transform}" fill="#5146e5" stroke="#25215f" stroke-width="2">
+            <path d="M50 8 L78 43 H62 V90 H38 V43 H22 Z"/>
+          </g>
+        </svg>`;
+    }
+
+    function figureCard(content, label = "") {
+      const card = document.createElement("div");
+      card.className = "figure";
+      card.innerHTML = content;
+      if (label) {
+        const caption = document.createElement("b");
+        caption.textContent = label;
+        card.appendChild(caption);
+      }
+      return card;
+    }
+
+    // ---------------------------------------------------------------------
+    // Question factory and local question bank/generators
+    // ---------------------------------------------------------------------
+
+    function makeQuestion(topic, prompt, answer, steps, hint, options, visual = "") {
+      return {
+        topic,
+        prompt,
+        answer: String(answer),
+        steps: steps.map(String),
+        hint,
+        options: [...new Set(options.map(String))],
+        visual
+      };
+    }
+
+    function generateAnalogy() {
+      const pairs = [
+        ["Bird", "Nest", "Bee", "Hive", "A nest is a bird's home; a hive is a bee's home."],
+        ["Puppy", "Dog", "Kitten", "Cat", "A puppy is a young dog; a kitten is a young cat."],
+        ["Thermometer", "Temperature", "Barometer", "Air pressure", "A thermometer measures temperature; a barometer measures air pressure."],
+        ["Author", "Book", "Composer", "Music", "An author creates a book; a composer creates music."],
+        ["Odometer", "Distance", "Clock", "Time", "An odometer measures distance; a clock measures time."],
+        ["Seed", "Plant", "Egg", "Bird", "A seed can develop into a plant; an egg can develop into a bird."]
+      ];
+
+      const item = pick(pairs);
+      const distractors = shuffle(["Cave", "Web", "Den", "Rain", "Wind", "Paint", "Shoe", "Water"])
+        .filter((value) => value !== item[3])
+        .slice(0, 3);
+
+      return makeQuestion(
+        "analogy",
+        `${item[0]} is to ${item[1]} as ${item[2]} is to _____.`,
+        item[3],
+        [
+          `Identify the relationship in the first pair: ${item[0]} → ${item[1]}.`,
+          `Apply the same relationship to ${item[2]}.`,
+          `${item[4]}`
+        ],
+        "Describe how the first word is connected to the second word.",
+        [item[3], ...distractors]
+      );
+    }
+
+    function generateOddOneOut() {
+      const groups = [
+        { items: ["apple", "mango", "banana", "carrot"], answer: "carrot", reason: "The other three are fruits; carrot is a vegetable." },
+        { items: ["rose", "tulip", "lily", "oak"], answer: "oak", reason: "The other three are flowers; oak is a tree." },
+        { items: ["bus", "train", "bicycle", "table"], answer: "table", reason: "The other three are forms of transport; a table is furniture." },
+        { items: ["January", "March", "Friday", "October"], answer: "Friday", reason: "The other three are months; Friday is a day of the week." },
+        { items: ["copper", "iron", "silver", "plastic"], answer: "plastic", reason: "The other three are metals; plastic is not a metal." }
+      ];
+
+      const group = pick(groups);
+      const items = shuffle(group.items);
+      const visual = `<div class="visual">${items.map((item) =>
+        `<div class="figure"><b style="font-size:18px">${item}</b></div>`).join("")}</div>`;
+
+      return makeQuestion(
+        "odd",
+        "Which item does NOT belong with the other three?",
+        group.answer,
+        [
+          `Compare all four items and look for a shared category.`,
+          `Three items belong to the same group.`,
+          group.reason
+        ],
+        "Find a category that describes exactly three of the four items.",
+        items,
+        visual
+      );
+    }
+
+    function generateSeries(difficulty) {
+      const useNumbers = Math.random() < 0.7;
+
+      if (useNumbers) {
+        const start = randomInt(1, difficulty === "hard" ? 15 : 10);
+        const step = randomInt(2, difficulty === "hard" ? 12 : 7);
+        const multiplier = difficulty === "hard" && Math.random() < 0.5;
+        let sequence;
+        let answer;
+        let explanation;
+
+        if (multiplier) {
+          const factor = randomInt(2, 3);
+          const first = randomInt(1, 4);
+          sequence = Array.from({ length: 5 }, (_, index) => first * (factor ** index));
+          answer = first * (factor ** 5);
+          explanation = `Each term is multiplied by ${factor}.`;
+        } else {
+          sequence = Array.from({ length: 5 }, (_, index) => start + index * step);
+          answer = start + 5 * step;
+          explanation = `The common difference is +${step}.`;
+        }
+
+        return makeQuestion(
+          "series",
+          `What number comes next?\n${sequence.join(", ")}, ___`,
+          answer,
+          [
+            `Compare consecutive terms: ${sequence[1] - sequence[0]} is the first change.`,
+            explanation,
+            `The next term is ${answer}.`
+          ],
+          "Check whether the sequence adds the same amount or multiplies by the same factor.",
+          [answer, answer + 1, Math.max(0, answer - 1), answer * 2]
+        );
+      }
+
+      const step = randomInt(2, difficulty === "hard" ? 4 : 3);
+      const start = randomInt(1, 5);
+      const letters = Array.from({ length: 5 }, (_, index) =>
+        String.fromCharCode(65 + start - 1 + (index * step)));
+      const answer = String.fromCharCode(65 + start - 1 + (5 * step));
+
+      return makeQuestion(
+        "series",
+        `What letter comes next?\n${letters.join(", ")}, ___`,
+        answer,
+        [
+          `Convert the letters to alphabet positions: ${letters.map((letter) => letter.charCodeAt(0) - 64).join(", ")}.`,
+          `The positions increase by ${step}.`,
+          `The next position gives the letter ${answer}.`
+        ],
+        "Convert each letter to its position in the alphabet.",
+        [answer, String.fromCharCode(answer.charCodeAt(0) - 1), String.fromCharCode(answer.charCodeAt(0) + 1), "Z"]
+      );
+    }
+
+    function generateMatrix() {
+      const trio = shuffle(SHAPES).slice(0, 3);
+      const [a, b, c] = trio;
+      const grid = [a, b, c, b, c, a, c, a, null];
+      const answer = b;
+      const distractors = shuffle(SHAPES.filter((shape) => !trio.includes(shape))).slice(0, 3);
+      const visual = `
+        <div class="matrix">
+          ${grid.map((shape) => `<div class="figure">${shape ? shapeSvg(shape) : '<span class="missing">?</span>'}</div>`).join("")}
+        </div>`;
+
+      return makeQuestion(
+        "matrix",
+        "Choose the missing figure. Each row and column contains each of the three shapes once.",
+        answer,
+        [
+          `The first row contains ${a}, ${b}, and ${c}.`,
+          `The second row shifts the order to ${b}, ${c}, and ${a}.`,
+          `The last row starts with ${c}, then ${a}; therefore the missing shape is ${b}.`
+        ],
+        "Check the order of the three shapes across each row and down each column.",
+        [answer, ...distractors],
+        visual
+      );
+    }
+
+    function generateRotation() {
+      const startAngle = pick([0, 90, 180, 270]);
+      const turn = pick([90, 180, 270]);
+      const answer = (startAngle + turn) % 360;
+      const options = shuffle([0, 90, 180, 270]).map((angle) => `${angle}°`);
+      const visual = `
+        <div class="figure">${arrowSvg(startAngle)}<b>Starting direction</b></div>
+        <p class="small">Rotate the arrow by the stated angle. The answer is not shown in the diagram.</p>`;
+
+      return makeQuestion(
+        "rotation",
+        `The arrow turns ${turn}° clockwise. Which direction does it point to?`,
+        `${answer}°`,
+        [
+          `The starting direction is ${startAngle}° clockwise from the top.`,
+          `Add the clockwise turn: ${startAngle}° + ${turn}° = ${startAngle + turn}°.`,
+          `Angles wrap after 360°, so the final direction is ${answer}°.`
+        ],
+        "Add the turn to the starting angle, then subtract 360° if needed.",
+        options,
+        visual
+      );
+    }
+
+    function generateMirror() {
+      const startAngle = pick([0, 45, 90, 135, 180, 225, 270, 315]);
+      const answer = (360 - startAngle) % 360;
+      const visual = `
+        <div class="figure">${arrowSvg(startAngle)}<b>Original figure</b></div>
+        <div class="figure" aria-label="Vertical mirror line">
+          <svg viewBox="0 0 100 100" role="img" aria-label="Vertical mirror line">
+            <path d="M50 5 V95" stroke="#64748b" stroke-width="4" stroke-dasharray="6 5"/>
+            <text x="58" y="18" font-size="9" fill="#64748b">Mirror</text>
+          </svg>
+          <b>Mirror line</b>
+        </div>`;
+
+      return makeQuestion(
+        "mirror",
+        "A figure is reflected across a vertical mirror line. What is the reflected arrow's direction, measured clockwise from the top?",
+        `${answer}°`,
+        [
+          `A vertical mirror reverses the left-right component of the direction.`,
+          `For an angle measured clockwise from the top, the reflected angle is (360° − ${startAngle}°) mod 360°.`,
+          `The reflected direction is ${answer}°.`
+        ],
+        "A vertical mirror reverses left and right but keeps up and down unchanged.",
+        shuffle([0, 45, 90, 135, 180, 225, 270, 315]).slice(0, 3).map((angle) => `${angle}°`).concat(`${answer}°`),
+        visual
+      );
+    }
+
+    function generateLogic() {
+      const statements = [
+        {
+          prompt: "All daxes are mips. All mips are zors. Which statement MUST be true?",
+          answer: "All daxes are zors.",
+          steps: [
+            "Every dax belongs to the group of mips.",
+            "Every mip belongs to the group of zors.",
+            "Therefore, every dax must also belong to the group of zors."
+          ],
+          options: ["All zors are daxes.", "Some daxes are not zors.", "All daxes are zors.", "No mips are zors."]
+        },
+        {
+          prompt: "All tulips are flowers. No flowers are machines. Which statement MUST be true?",
+          answer: "No tulips are machines.",
+          steps: [
+            "Every tulip belongs to the category of flowers.",
+            "The flower category has no overlap with machines.",
+            "Therefore, tulips cannot be machines."
+          ],
+          options: ["All machines are tulips.", "No tulips are machines.", "Some tulips are machines.", "All flowers are tulips."]
+        },
+        {
+          prompt: "Some artists are teachers. All teachers are readers. Which statement MUST be true?",
+          answer: "Some artists are readers.",
+          steps: [
+            "At least one person is both an artist and a teacher.",
+            "Every teacher is also a reader.",
+            "That artist-teacher is therefore a reader, so some artists are readers."
+          ],
+          options: ["All artists are readers.", "No artists are readers.", "Some artists are readers.", "All readers are teachers."]
+        }
+      ];
+
+      const item = pick(statements);
+      return makeQuestion("logic", item.prompt, item.answer, item.steps,
+        "Translate each statement into group membership, then follow what must be true.",
+        item.options);
+    }
+
+    function generateClassification() {
+      const sets = [
+        { shapes: ["circle", "circle", "circle"], answer: "circle", rule: "All three figures are circles." },
+        { shapes: ["triangle", "triangle", "triangle"], answer: "triangle", rule: "All three figures are triangles." },
+        { shapes: ["square", "square", "square"], answer: "square", rule: "All three figures are squares." }
+      ];
+      const set = pick(sets);
+      const options = shuffle(SHAPES).slice(0, 3);
+      if (!options.includes(set.answer)) options[0] = set.answer;
+
+      const visual = `<div class="visual">${set.shapes.map((shape) =>
+        `<div class="figure">${shapeSvg(shape)}</div>`).join("")}</div>`;
+
+      return makeQuestion(
+        "classification",
+        "Which shape belongs to the same group as the three figures shown?",
+        set.answer,
+        [
+          "Compare the outlines of the three example figures.",
+          `The shared property is that each figure is a ${set.answer}.`,
+          `Choose another ${set.answer} to match the group. ${set.rule}`
+        ],
+        "Look at the outline, not the size or colour.",
+        options,
+        visual
+      );
+    }
+
+    function generateCoding() {
+      const shift = randomInt(1, 5);
+      const letter = String.fromCharCode(randomInt(65, 85));
+      const answer = String.fromCharCode(letter.charCodeAt(0) + shift);
+      const example = String.fromCharCode(65 + shift);
+
+      return makeQuestion(
+        "coding",
+        `A code moves each letter ${shift} place(s) forward. If A becomes ${example}, what does ${letter} become?`,
+        answer,
+        [
+          `The rule moves every letter forward by ${shift} positions.`,
+          `${letter} is letter number ${letter.charCodeAt(0) - 64}.`,
+          `Add ${shift}: ${letter.charCodeAt(0) - 64} + ${shift} = ${answer.charCodeAt(0) - 64}, which is ${answer}.`
+        ],
+        "Apply the same forward shift to the letter in the question.",
+        [answer, String.fromCharCode(answer.charCodeAt(0) - 1), String.fromCharCode(answer.charCodeAt(0) + 1), letter]
+      );
+    }
+
+    function generateDirection() {
+      const directions = ["North", "East", "South", "West"];
+      const start = pick(directions);
+      const turns = randomInt(1, 7);
+      const turn = pick(["right", "left"]);
+      const startIndex = directions.indexOf(start);
+      const finalIndex = (startIndex + (turn === "right" ? turns : -turns) + 40) % 4;
+      const answer = directions[finalIndex];
+
+      return makeQuestion(
+        "direction",
+        `A person faces ${start} and makes ${turns} quarter-turn(s) to the ${turn}. Which direction are they facing?`,
+        answer,
+        [
+          "One quarter-turn is 90 degrees.",
+          "A right turn moves clockwise; a left turn moves counterclockwise.",
+          `After ${turns} quarter-turn(s), the person faces ${answer}.`
+        ],
+        "Count one compass direction for each quarter-turn.",
+        directions
+      );
+    }
+
+    const GENERATORS = {
+      analogy: generateAnalogy,
+      odd: generateOddOneOut,
+      series: generateSeries,
+      matrix: generateMatrix,
+      rotation: generateRotation,
+      mirror: generateMirror,
+      logic: generateLogic,
+      classification: generateClassification,
+      coding: generateCoding,
+      direction: generateDirection
+    };
+
+    function generateQuestion(topic, difficulty) {
+      const generator = GENERATORS[topic];
+      if (!generator) throw new Error(`Unknown question topic: ${topic}`);
+      return topic === "series" ? generator(difficulty) : generator();
+    }
+
+    // ---------------------------------------------------------------------
+    // Session state and rendering
+    // ---------------------------------------------------------------------
+
+    let currentQuestion = null;
+    let locked = true;
+    let timerId = null;
+    let autoNextId = null;
+    let secondsLeft = 0;
+    let score = 0;
+    let attempts = 0;
+    let currentStreak = 0;
+    let bestStreak = 0;
+    let questionNumber = 0;
+    let sessionMode = "practice";
+    let examLimit = 50;
+    let sessionFinished = false;
+    let sessionToken = 0;
+    let misses = {};
+    let totals = {};
+    let answerHistory = [];
+
+    function resetStatistics() {
+      misses = {};
+      totals = {};
+
+      Object.keys(TOPIC_NAMES).forEach((topic) => {
+        misses[topic] = 0;
+        totals[topic] = 0;
+      });
+
+      answerHistory = [];
+    }
+
+    function selectedTopics() {
+      return [...document.querySelectorAll("#topics input:checked")]
+        .map((checkbox) => checkbox.value);
+    }
+
+    function clearTimers() {
+      window.clearInterval(timerId);
+      window.clearTimeout(autoNextId);
+      timerId = null;
+      autoNextId = null;
+    }
+
+    function showTimer() {
+      $("timer").textContent = secondsLeft > 0 ? `⏱ ${secondsLeft}s` : "⏱ ∞";
+    }
+
+    function renderQuestion(question) {
+      $("questionTitle").textContent = question.prompt;
+      $("visual").innerHTML = question.visual || "";
+      $("options").replaceChildren();
+
+      const choices = shuffle(question.options).slice(0, 4);
+
+      // A valid question always includes its correct answer.
+      if (!choices.includes(question.answer)) {
+        choices[choices.length - 1] = question.answer;
+      }
+
+      question.displayedOptions = shuffle([...new Set(choices)]);
+
+      question.displayedOptions.forEach((choice, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "option";
+        button.textContent = `${String.fromCharCode(65 + index)}. ${choice}`;
+        button.dataset.answer = choice;
+        button.addEventListener("click", () => submitAnswer(choice));
+        $("options").appendChild(button);
+      });
+
+      $("feedback").className = "feedback";
+      $("feedback").textContent = "";
+      $("hintbox").className = "hintbox";
+      $("hintbox").textContent = "";
+      $("solution").className = "solution";
+      $("steps").replaceChildren();
+      $("finalAnswer").textContent = "";
+      $("next").disabled = true;
+      $("hint").disabled = false;
+
+      if (scratchMathField) scratchMathField.latex("");
+    }
+
+    async function startSession() {
+      clearTimers();
+
+      const chosenTopics = selectedTopics();
+      if (chosenTopics.length === 0) {
+        window.alert("Please select at least one topic.");
+        return;
+      }
+
+      sessionToken += 1;
+      const thisSession = sessionToken;
+
+      score = 0;
+      attempts = 0;
+      currentStreak = 0;
+      bestStreak = 0;
+      questionNumber = 0;
+      sessionMode = $("mode").value;
+      examLimit = Number($("count").value);
+      sessionFinished = false;
+
+      resetStatistics();
+      updateOverview();
+      renderFocus();
+      renderHistory();
+
+      $("start").disabled = true;
+      $("start").textContent = "Starting…";
+
+      try {
+        await nextQuestion(thisSession);
+      } finally {
+        $("start").disabled = false;
+        $("start").textContent = "Start session";
+      }
+    }
+
+    async function nextQuestion(expectedToken = sessionToken) {
+      clearTimers();
+
+      if (sessionFinished || expectedToken !== sessionToken) return;
+
+      if (sessionMode === "exam" && questionNumber >= examLimit) {
+        finishExam();
+        return;
+      }
+
+      questionNumber += 1;
+      locked = false;
+
+      const availableTopics = selectedTopics();
+      const topic = pick(availableTopics);
+
+      $("topicPill").textContent = TOPIC_NAMES[topic].toUpperCase();
+      $("diffPill").textContent = $("difficulty").value.toUpperCase();
+      $("numberPill").textContent = sessionMode === "exam"
+        ? `QUESTION ${questionNumber} / ${examLimit}`
+        : `QUESTION ${questionNumber}`;
+
+      $("questionTitle").textContent = "Generating question…";
+      $("visual").replaceChildren();
+      $("options").replaceChildren();
+
+      // Generation is synchronous and local; the async wrapper keeps the
+      // session flow ready for a future optional question-provider adapter.
+      currentQuestion = generateQuestion(topic, $("difficulty").value);
+
+      if (expectedToken !== sessionToken || sessionFinished) return;
+
+      renderQuestion(currentQuestion);
+
+      secondsLeft = Number($("duration").value);
+      showTimer();
+
+      if (secondsLeft > 0) {
+        timerId = window.setInterval(() => {
+          secondsLeft -= 1;
+          showTimer();
+
+          if (secondsLeft <= 0) {
+            clearTimers();
+            if (!locked) {
+              recordAnswer(false, null, "Time is up.");
+            }
+          }
+        }, 1000);
+      }
+
+      updateOverview();
+    }
+
+    function submitAnswer(selectedAnswer) {
+      if (locked || !currentQuestion) return;
+      const isCorrect = selectedAnswer === currentQuestion.answer;
+      recordAnswer(
+        isCorrect,
+        selectedAnswer,
+        isCorrect ? "Correct! You identified the pattern." : "Not quite. Review the worked solution below."
+      );
+    }
+
+    function recordAnswer(isCorrect, selectedAnswer, message) {
+      if (locked || !currentQuestion) return;
+
+      locked = true;
+      window.clearInterval(timerId);
+      timerId = null;
+
+      attempts += 1;
+      totals[currentQuestion.topic] += 1;
+
+      if (isCorrect) {
+        score += 1;
+        currentStreak += 1;
+        bestStreak = Math.max(bestStreak, currentStreak);
+      } else {
+        misses[currentQuestion.topic] += 1;
+        currentStreak = 0;
+      }
+
+      document.querySelectorAll(".option").forEach((button) => {
+        button.disabled = true;
+
+        if (button.dataset.answer === currentQuestion.answer) {
+          button.classList.add("correct");
+        }
+
+        if (selectedAnswer !== null &&
+            button.dataset.answer === selectedAnswer &&
+            !isCorrect) {
+          button.classList.add("wrong");
+        }
+      });
+
+      $("feedback").className = `feedback show ${isCorrect ? "good" : "bad"}`;
+      $("feedback").textContent = `${message} Correct answer: ${currentQuestion.answer}`;
+
+      renderSolution(currentQuestion);
+      $("next").disabled = false;
+      $("hint").disabled = true;
+
+      answerHistory.unshift({
+        topic: currentQuestion.topic,
+        prompt: currentQuestion.prompt,
+        answer: currentQuestion.answer,
+        correct: isCorrect
+      });
+
+      renderHistory();
+      renderFocus();
+      updateOverview();
+
+      if ($("transition").value === "auto" && sessionMode === "exam") {
+        $("next").disabled = true;
+        autoNextId = window.setTimeout(() => nextQuestion(sessionToken), 2000);
+      }
+    }
+
+    function renderSolution(question) {
+      $("steps").replaceChildren();
+
+      question.steps.forEach((stepText, index) => {
+        const step = document.createElement("div");
+        step.className = "step";
+
+        const heading = document.createElement("strong");
+        heading.textContent = `Step ${index + 1} — `;
+
+        const description = document.createElement("span");
+        description.textContent = stepText;
+
+        step.append(heading, description);
+        $("steps").appendChild(step);
+      });
+
+      $("finalAnswer").textContent = `Final answer: ${question.answer}`;
+      $("solution").className = "solution show";
+    }
+
+    function finishExam() {
+      sessionFinished = true;
+      locked = true;
+      clearTimers();
+
+      $("timer").textContent = "FINISHED";
+      $("numberPill").textContent = "COMPLETED";
+      $("questionTitle").textContent = `Exam completed! You scored ${score} out of ${examLimit}.`;
+      $("visual").replaceChildren();
+      $("options").replaceChildren();
+      $("feedback").className = `feedback show ${score / examLimit >= 0.7 ? "good" : "bad"}`;
+      $("feedback").textContent =
+        `Final accuracy: ${Math.round((score / examLimit) * 100)}%. Review your focus report.`;
+      $("solution").className = "solution";
+      $("hintbox").className = "hintbox";
+      $("next").disabled = true;
+      $("hint").disabled = true;
+
+      updateOverview();
+    }
+
+    // ---------------------------------------------------------------------
+    // Reports, hints, and reset actions
+    // ---------------------------------------------------------------------
+
+    function updateOverview() {
+      $("score").textContent = score;
+      $("attempts").textContent = attempts;
+      $("accuracy").textContent = `${attempts ? Math.round((score / attempts) * 100) : 0}%`;
+      $("streak").textContent = bestStreak;
+
+      const progress = sessionMode === "exam"
+        ? Math.min(100, (questionNumber / examLimit) * 100)
+        : (attempts ? (score / attempts) * 100 : 0);
+
+      $("progressFill").style.width = `${progress}%`;
+      $("progressText").textContent = sessionMode === "exam"
+        ? `${Math.min(questionNumber, examLimit)} of ${examLimit} questions reached • ${score} correct.`
+        : (attempts ? `${score} correct out of ${attempts} attempted.` : "Start a session to track your progress.");
+
+      $("pdf").disabled = attempts === 0;
+    }
+
+    function renderFocus() {
+      const rankedTopics = Object.keys(totals)
+        .filter((topic) => totals[topic] > 0)
+        .map((topic) => ({
+          topic,
+          missed: misses[topic],
+          total: totals[topic],
+          rate: misses[topic] / totals[topic]
+        }))
+        .sort((a, b) => b.rate - a.rate || b.missed - a.missed);
+
+      $("focus").replaceChildren();
+
+      if (rankedTopics.length === 0) {
+        $("focus").innerHTML = '<p class="small">Your focus report appears after you answer.</p>';
+        return;
+      }
+
+      rankedTopics.forEach((item) => {
+        const row = document.createElement("div");
+        row.className = "focus";
+
+        const title = document.createElement("div");
+        title.className = "focus-title";
+
+        const name = document.createElement("span");
+        name.textContent = `${TOPIC_NAMES[item.topic]} (${item.missed}/${item.total} missed)`;
+
+        const percentage = document.createElement("strong");
+        percentage.textContent = `${Math.round(item.rate * 100)}%`;
+
+        const bar = document.createElement("div");
+        bar.className = "bar";
+
+        const fill = document.createElement("i");
+        fill.style.width = `${item.rate * 100}%`;
+
+        title.append(name, percentage);
+        bar.appendChild(fill);
+        row.append(title, bar);
+        $("focus").appendChild(row);
+      });
+    }
+
+    function renderHistory() {
+      $("history").replaceChildren();
+
+      if (answerHistory.length === 0) {
+        $("history").innerHTML = '<p class="small">No answers yet.</p>';
+        return;
+      }
+
+      answerHistory.slice(0, 20).forEach((item) => {
+        const row = document.createElement("div");
+        row.className = "history-item";
+
+        const title = document.createElement("strong");
+        title.textContent = `${item.correct ? "✓" : "✕"} ${TOPIC_NAMES[item.topic]}`;
+
+        const prompt = document.createElement("div");
+        prompt.textContent = item.prompt;
+
+        const answer = document.createElement("span");
+        answer.className = "small";
+        answer.textContent = `Answer: ${item.answer}`;
+
+        row.append(title, prompt, answer);
+        $("history").appendChild(row);
+      });
+    }
+
+    function showHint() {
+      if (!currentQuestion || locked) return;
+      $("hintbox").textContent = `Hint: ${currentQuestion.hint}`;
+      $("hintbox").className = "hintbox show";
+    }
+
+    function resetSession() {
+      sessionToken += 1;
+      clearTimers();
+
+      locked = true;
+      sessionFinished = false;
+      currentQuestion = null;
+      score = 0;
+      attempts = 0;
+      currentStreak = 0;
+      bestStreak = 0;
+      questionNumber = 0;
+      sessionMode = $("mode").value;
+      examLimit = Number($("count").value);
+
+      resetStatistics();
+
+      $("questionTitle").textContent = "Choose your topics, then start a session.";
+      $("visual").replaceChildren();
+      $("options").replaceChildren();
+      $("feedback").className = "feedback";
+      $("hintbox").className = "hintbox";
+      $("solution").className = "solution";
+      $("topicPill").textContent = "READY";
+      $("diffPill").textContent = $("difficulty").value.toUpperCase();
+      $("numberPill").textContent = "QUESTION —";
+      $("timer").textContent = "⏱ --";
+      $("next").disabled = true;
+      $("hint").disabled = true;
+
+      if (scratchMathField) scratchMathField.latex("");
+
+      renderHistory();
+      renderFocus();
+      updateOverview();
+    }
+
+    function practiceWeakestTopic() {
+      const practiced = Object.keys(totals).filter((topic) => totals[topic] > 0);
+
+      if (practiced.length === 0) {
+        window.alert("Answer some questions first so the app can identify a topic to practise.");
+        return;
+      }
+
+      practiced.sort((a, b) => {
+        const rateDifference = (misses[b] / totals[b]) - (misses[a] / totals[a]);
+        return rateDifference || misses[b] - misses[a];
+      });
+
+      document.querySelectorAll("#topics input").forEach((checkbox) => {
+        checkbox.checked = checkbox.value === practiced[0];
+      });
+
+      startSession();
+    }
+
+    function generateStudyReport() {
+      if (!window.jspdf || !window.jspdf.jsPDF) {
+        window.alert("The PDF library could not load. Check your internet connection and try again.");
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const documentPdf = new jsPDF();
+
+      documentPdf.setFontSize(17);
+      documentPdf.text("AptitudeLab - CET Abstract Reasoning Report", 14, 18);
+
+      documentPdf.setFontSize(10);
+      documentPdf.text(
+        `Score: ${score}/${attempts} | Accuracy: ${attempts ? Math.round((score / attempts) * 100) : 0}% | Best streak: ${bestStreak}`,
+        14,
+        27
+      );
+
+      let y = 39;
+      documentPdf.setFontSize(11);
+      documentPdf.text("Topic performance", 14, y);
+      y += 8;
+
+      Object.keys(totals).filter((topic) => totals[topic] > 0).forEach((topic) => {
+        documentPdf.text(
+          `${TOPIC_NAMES[topic]}: ${totals[topic] - misses[topic]}/${totals[topic]} correct; ${misses[topic]} missed`,
+          14,
+          y
+        );
+        y += 7;
+      });
+
+      y += 5;
+      documentPdf.text("Recent answer review", 14, y);
+      y += 8;
+
+      answerHistory.slice(0, 30).forEach((item, index) => {
+        const text = `${index + 1}. ${item.correct ? "Correct" : "Incorrect"} | ${TOPIC_NAMES[item.topic]} | ${item.prompt} | Answer: ${item.answer}`;
+        const lines = documentPdf.splitTextToSize(text, 180);
+
+        if (y + (lines.length * 5) > 280) {
+          documentPdf.addPage();
+          y = 18;
+        }
+
+        documentPdf.text(lines, 14, y);
+        y += (lines.length * 5) + 3;
+      });
+
+      documentPdf.save("AptitudeLab-CET-Study-Report.pdf");
+    }
+
+    // ---------------------------------------------------------------------
+    // Event listeners and initial state
+    // ---------------------------------------------------------------------
+
+    $("start").addEventListener("click", startSession);
+    $("reset").addEventListener("click", resetSession);
+    $("next").addEventListener("click", () => nextQuestion(sessionToken));
+    $("hint").addEventListener("click", showHint);
+    $("pdf").addEventListener("click", generateStudyReport);
+    $("weak").addEventListener("click", practiceWeakestTopic);
+
+    $("mode").addEventListener("change", () => {
+      $("count").disabled = $("mode").value !== "exam";
+    });
+
+    $("count").disabled = $("mode").value !== "exam";
+
+    initializeMathQuill();
+    resetStatistics();
+    updateOverview();
+    renderFocus();
+    renderHistory();
+  </script>
+</body>
+</html>
